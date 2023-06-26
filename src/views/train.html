@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train</title>
+    <link rel="stylesheet" href="/styles/main.css" />
+    <link rel="stylesheet" href="/styles/train.css" />
+</head>
+
+<body>
+    <main class="container">
+        <section class="block1">
+            <button class="add-class">
+                <svg style="margin-right: 5px;" width="15" height="14" viewBox="0 0 15 14" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M12.9961 0.25H2.33376C1.48838 0.25 0.810562 0.925 0.810562 1.75V12.25C0.810562 13.075 1.48838 13.75 2.33376 13.75H12.9961C13.8339 13.75 14.5193 13.075 14.5193 12.25V1.75C14.5193 0.925 13.8339 0.25 12.9961 0.25ZM12.9961 12.25H2.33376V1.75H12.9961V12.25ZM8.42654 10.75H6.90335V7.75H3.85695V6.25H6.90335V3.25H8.42654V6.25H11.4729V7.75H8.42654V10.75Z"
+                        fill="#fff"></path>
+                </svg>
+                Add a class
+            </button>
+        </section>
+        <section class="block2">
+            <button id="train">Train model</button>
+            <button id="download">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M13 12.17L15.59 9.59L17 11L12 16L7 11L8.41 9.59L11 12.17V4H13V12.17ZM6 15H4V18C4 19.1 4.9 20 6 20H18C19.1 20 20 19.1 20 18V15H18V18H6V15Z"
+                        fill="#fff"></path>
+                </svg> Download</button>
+            <button id="reset">Reset</button>
+        </section>
+        <section class="block3">
+        </section>
+        <aside class="block4">
+            <video id="webcam" autoplay muted></video>
+            <div id="enableCam" class="icon">
+                <svg class="sample-source-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#1967D2" fill-rule="evenodd" clip-rule="evenodd"
+                        d="M18 6V10.48L22 6.5V17.5L18 13.52V14.52V18C18 19.1 17.1 20 16 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4H16C17.1 4 18 4.9 18 6ZM16 14.52V9.69V6H4V18H16V14.52Z">
+                    </path>
+                </svg>
+                <span>webcam</span>
+            </div>
+            <p id="status">Awaiting TF.js load</p>
+            <div class="predictions"></div>
+        </aside>
+    </main>
+
+    <!-- Import TensorFlow.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js" type="text/javascript"></script>
+    <!--script type="module" src="/scripts/tensorflowjs/tf.min.js"></script-->
+    <script type="module" src="/scripts/camera.js"></script>
+    <script type="module" src="/scripts/loadMobileNetFeatureModel.js"></script>
+    <script type="module" src="/scripts/gatherDataForClass.js"></script>
+    <script type="module" src="/scripts/html.js"></script>
+    <script type="module" src="/scripts/randomColors.js"></script>
+    <script type="module" src="/scripts/class.js"></script>
+    <script type="module" src="/scripts/downloadModel.js"></script>
+    <script type="module" src="/scripts/train.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,25 @@
+body {
+    display: grid;
+    justify-content: center;
+}
+
+main{
+    display: flex;
+    gap: 12em;
+    justify-content: space-between;
+    width: fit-content;
+}
+.startSection{
+    display:  flex;
+    gap: 1em;
+}
+
+.enablePredictionButton, .train {
+    border-radius: .5em;
+    width: 4em;
+    height: auto;
+    background-color: #D2E3FC;
+    text-align: center;
+    font-size: .8em;
+    padding: .4em;
+}
