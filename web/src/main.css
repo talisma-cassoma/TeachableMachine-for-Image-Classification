@@ -2,7 +2,7 @@ body {
   font-family: Roboto, sans-serif;
   font-weight: normal;
   padding: 4em 4em 0 4em;
-  background-color: #E8EAED;
+  /*background-color: #E8EAED;*/
 }
 .container{
  display: flex;
@@ -57,5 +57,8 @@ section.videoPlay{
 }
 
 aside{
+  display: flex;
   overflow: hidden;
+  gap: 2em;
+  justify-content: space-around;
 }

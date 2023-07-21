@@ -29,6 +29,6 @@ server.use(routes)
 
 server.listen(3000, async () => {
 
-    await open('http://localhost:3000');
+    // await open('http://localhost:3000');
     console.log('rodando')
 })
