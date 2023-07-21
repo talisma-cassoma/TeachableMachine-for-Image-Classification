@@ -5,7 +5,9 @@ body {
 section{
     margin: 5rem 2em;
 }
-
+video{
+    margin: 1em 0;
+}
 #status {
     font-size: 150%;
 }

@@ -1,3 +1,7 @@
+:root{
+    --viedoHeight: 480px;
+    --viedoWidth: 640px;
+}
 body {
     font-family: BoingSemiBold, Helvetica, Arial, sans-serif;
     justify-content: center;
@@ -25,10 +29,9 @@ P {
 video {
     clear: both;
     display: block;
-    margin:1em 0;
     background: #000000;
-    width: 640px;
-    height: 480px;
+    width: var(--viedoWidth);
+    height: var(--viedoHeight)
 }
 
 a {

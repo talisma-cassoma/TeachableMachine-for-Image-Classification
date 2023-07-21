@@ -86,3 +86,4 @@ cocoSsd.load().then(function (loadedModel) {
 	// Start the camera stream
 	startCamera();
 });
+
