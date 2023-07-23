@@ -14,7 +14,6 @@ const ctx = canvas.getContext("2d"); // Get the 2D rendering context for the can
 
 // Variables to store model and prediction data
 let cocoSsdModel = undefined; // Coco-SSD model for object detection
-let squares = []; // An array to store squares drawn on the canvas
 let model = undefined; // AI model for predictions
 let labels = []; // Array to store the labels/names of objects the model can predict
 
