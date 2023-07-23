@@ -2,40 +2,81 @@
 <html lang="en">
 
 <head>
-    <title>Multiple object detection using pre trained model in TensorFlow.js</title>
+    <title>Multiple object detection using pre-trained model in TensorFlow.js</title>
     <meta charset="utf-8">
     <!-- Import the webpage's stylesheet -->
     <link rel="stylesheet" href="/styles/test.css" />
 </head>
 
 <body>
-    <h1>Multiple object detection using pre trained model in TensorFlow.js</h1>
+    <!-- HTML video element to display the video stream -->
+    <video id="videoElement" width="640" height="480" autoplay></video>
 
-    <p>Wait for the model to load before clicking the button to enable the webcam - at which point it will become
-        visible to use.</p>
+    <!-- Include TensorFlow.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.15.0/dist/tf.min.js"></script>
 
-    <section id="demos" class="invisible">
+    <script>
+        // Function to process video frames
+        const roiX = 10;
+        const roiY = 10;
+        const roiWidth = 50;
+        const roiHeight = 50;
+        async function processVideoStream() {
+            const videoElement = document.getElementById('videoElement');
 
-        <p>Hold some objects up close to your webcam to get a real-time classification! When ready click "enable webcam"
-            below and accept access to the webcam when the browser asks (check the top left of your window)</p>
+            try {
+                // Get the video stream from the user's camera
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                videoElement.srcObject = stream;
 
-        <div id="liveView" class="camView">
-            <div class="view">
-                <video id="video" autoplay muted width="640" height="480"></video>
-                <canvas id="myCanvas"></canvas>
-            </div>
-        </div>
-    </section>
+                // Wait for the video to be loaded and playing
+                await new Promise((resolve) => {
+                    videoElement.onloadedmetadata = () => resolve();
+                    videoElement.play();
+                });
 
-    <!-- Import TensorFlow.js library -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js" type="text/javascript"></script>
-    <!-- Load the coco-ssd model to use to recognize things in images -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
-    <!-- Include MobileNet model -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.0.4/dist/mobilenet.min.js"></script>
+                // Create a canvas element to draw the video frame
+                const canvas = document.createElement('canvas');
+                canvas.width = videoElement.videoWidth;
+                canvas.height = videoElement.videoHeight;
+                document.body.appendChild(canvas); // Append canvas to the HTML body
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-    <!-- Import the page's JavaScript to do some stuff -->
-    <script type="module" src="/scripts/test.js"></script>
+                // Start processing video frames
+                while (true) {
+                    // Draw the current video frame onto the canvas
+                    ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+                    // Draw red rectangles for the ROI
+                    ctx.strokeStyle = 'red';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(roiX, roiY, roiWidth, roiHeight);
+
+                    // Get the pixel data of the drawn frame
+                    const imageData = ctx.getImageData(roiX, roiY, roiWidth, roiHeight); // Adjust these values for your ROI
+
+                    // Convert pixel data to a TensorFlow.js tensor
+                    const tensorData = tf.tensor(imageData.data).reshape([roiHeight, roiWidth, 4]); // height, width, channels
+                    const scaledTensor = tensorData.div(255); // Normalize pixel values to [0, 1]
+                    //console.log(tensorData);
+                    // Now you can use the `scaledTensor` in your TensorFlow.js model for inference or further processing
+                    // ...
+
+                    // Clean up the tensor
+                    tensorData.dispose();
+                    scaledTensor.dispose();
+
+                    // Repeat the process for the next video frame
+                    await new Promise((resolve) => requestAnimationFrame(resolve));
+                }
+            } catch (err) {
+                console.error('Error accessing the camera:', err);
+            }
+        }
+
+        // Call the function to start processing the video stream
+        processVideoStream();
+    </script>
 </body>
 
 </html>
