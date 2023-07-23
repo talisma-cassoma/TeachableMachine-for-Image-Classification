@@ -1,9 +1,9 @@
-/*
+/***************************************************************************************
 here we use TensorFlow.js for AI object detection 
 on a live video stream from the user's camera. It loads a pre-trained Coco-SSD model 
 for object detection and another AI model from a server for classification. The detected 
 objects and their predictions are displayed on an HTML canvas element in real-time.
-*/
+******************************************************************************************/
 // Import necessary modules
 import { Camera } from "./camera.js"; // Import the Camera module from camera.js
 import { mobilenet, loadMobileNetFeatureModel } from "./loadMobileNetFeatureModel.js"; // Import functions from loadMobileNetFeatureModel.js
