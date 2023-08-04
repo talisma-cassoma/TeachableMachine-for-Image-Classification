@@ -22,11 +22,11 @@ function drawSquare(x, y, size, color, text) {
     ctx.beginPath(); // Begin drawing a path
     ctx.rect(x, y, size.width, size.height); // Create a rectangle path
     ctx.strokeStyle = color; // Set the stroke color
-    ctx.lineWidth = 2; // Set the stroke width
+    ctx.lineWidth = 1; // Set the stroke width
     ctx.stroke(); // Draw the stroke
     if (text) {
         ctx.fillStyle = color; // Set the fill color
-        ctx.font = '10px Arial'; // Set the font style for text
+        ctx.font = '8px Arial'; // Set the font style for text
         ctx.fillText(text, x + 5, y + 10); // Draw the text above the rectangle
     }
 }
@@ -57,28 +57,34 @@ const Prediction = {
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing new predictions
 
             predictions.forEach((prediction) => {
-                const imageData = ctx.getImageData(prediction.bbox[0], prediction.bbox[1], prediction.bbox[2], prediction.bbox[3]); // Get image data for the predicted bounding box
+                if (prediction.class == "person") {
+                    const imageData = ctx.getImageData(prediction.bbox[0], prediction.bbox[1], prediction.bbox[2], prediction.bbox[3]); // Get image data for the predicted bounding box
+                    
+                    console.log(imageData)
+                    
+                    tf.tidy(function () { // Perform TensorFlow operations without memory leaks
+                        let videoFrameAsTensor = tf.browser.fromPixels(imageData).div(255); // Convert the image data to a tensor and normalize
+                        let resizedTensorFrame = tf.image.resizeBilinear(videoFrameAsTensor, [Camera.MOBILE_NET_INPUT_HEIGHT, Camera.MOBILE_NET_INPUT_WIDTH], true); // Resize the tensor to match the input size of the MobileNet model
+                        let imageFeatures = mobilenet.predict(resizedTensorFrame.expandDims()); // Get the image features using MobileNet
+                        let predict = model.predict(imageFeatures).squeeze(); // Use the AI model to make predictions on the image features
+                        let highestIndex = predict.argMax().arraySync(); // Get the index of the highest prediction value
+                        let predictionArray = predict.arraySync(); // Convert the predictions tensor to an array
 
-                tf.tidy(function () { // Perform TensorFlow operations without memory leaks
-                    let videoFrameAsTensor = tf.browser.fromPixels(imageData).div(255); // Convert the image data to a tensor and normalize
-                    let resizedTensorFrame = tf.image.resizeBilinear(videoFrameAsTensor, [Camera.MOBILE_NET_INPUT_HEIGHT, Camera.MOBILE_NET_INPUT_WIDTH], true); // Resize the tensor to match the input size of the MobileNet model
-                    let imageFeatures = mobilenet.predict(resizedTensorFrame.expandDims()); // Get the image features using MobileNet
-                    let predict = model.predict(imageFeatures).squeeze(); // Use the AI model to make predictions on the image features
-                    let highestIndex = predict.argMax().arraySync(); // Get the index of the highest prediction value
-                    let predictionArray = predict.arraySync(); // Convert the predictions tensor to an array
+                        //console.log(predictionArray)
 
-                    let text = `${labels[highestIndex]}: ${Math.floor(predictionArray[highestIndex] * 100)} % confidence`; // Create the text to display above the rectangle
-                    drawSquare(
-                        prediction.bbox[0],
-                        prediction.bbox[1],
-                        {
-                            width: prediction.bbox[2],
-                            height: prediction.bbox[3],
-                        },
-                        'red',
-                        text // Pass the text to draw above the rectangle
-                    );
-                });
+                        let text = `${labels[highestIndex]}: ${Math.floor(predictionArray[highestIndex] * 100)} % confidence`; // Create the text to display above the rectangle
+                        drawSquare(
+                            prediction.bbox[0],
+                            prediction.bbox[1],
+                            {
+                                width: prediction.bbox[2],
+                                height: prediction.bbox[3],
+                            },
+                            'red',
+                            text // Pass the text to draw above the rectangle
+                        );
+                    });
+                }
             });
 
             requestAnimationFrame(Prediction.predictLoop); // Request the next animation frame to continue the prediction loop
