@@ -21,8 +21,12 @@ const Camera = {
       // getUsermedia parameters.
       const constraints = {
         video: true,
+        audio: false,
         width: 640, 
-        height: 480 
+        height: 480,
+        frameRate: {
+          ideal: 50
+        } 
       }
        // Activate the webcam stream.
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {

@@ -5,17 +5,41 @@ for object detection and another AI model from a server for classification. The 
 objects and their predictions are displayed on an HTML canvas element in real-time.
 ******************************************************************************************/
 // Import necessary modules
+tf.setBackend('webgl');
 import { Camera } from "./camera.js"; // Import the Camera module from camera.js
 import { mobilenet, loadMobileNetFeatureModel } from "./loadMobileNetFeatureModel.js"; // Import functions from loadMobileNetFeatureModel.js
 
 // Get canvas and context for rendering
 const canvas = document.getElementById("myCanvas"); // Get the canvas element with ID "myCanvas"
-const ctx = canvas.getContext("2d"); // Get the 2D rendering context for the canvas
+const ctx = canvas.getContext("2d", { willReadFrequently: true }); // Get the 2D rendering context for the canvas
 
 // Variables to store model and prediction data
 let cocoSsdModel = undefined; // Coco-SSD model for object detection
 let model = undefined; // AI model for predictions
 let labels = []; // Array to store the labels/names of objects the model can predict
+const maxQueueLength = 10; // Adjust this based on your preference
+const predictedFrameQueue = [];
+
+// Function to draw a single frame with bounding boxes
+function drawFrame(firstPredictedFrame) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing new frame
+    const { image, predictions } = firstPredictedFrame; // Destructure the frame object
+
+    // Process and draw the frame with bounding boxes using drawSquare() function
+    predictions.forEach((prediction) => {
+        const { bbox, class: className } = prediction;
+        const text = `${className}: ${Math.floor(prediction.score * 100)}% confidence`;
+        drawSquare(bbox[0], bbox[1], { width: bbox[2], height: bbox[3] }, 'red', text);
+    });
+}
+// Function to process frames from the queue
+function processFrames() {
+    const firstPredictedFrame = undefined; 
+    if (predictedFrameQueue.length = maxQueueLength) {
+        firstPredictedFrame = predictedFrameQueue.shift(); // Get the first frame from the queue
+    }
+    drawFrame(firstPredictedFrame); // Draw the frame with bounding boxes
+}
 
 // Function to draw a single square on the canvas
 function drawSquare(x, y, size, color, text) {
@@ -49,45 +73,17 @@ const Prediction = {
 
     // Prediction loop function to continuously make predictions
     async predictLoop() {
-        if (Camera.videoPlaying) { // Check if the camera is active
-            ctx.drawImage(Camera.VIDEO, 0, 0, canvas.width, canvas.height); // Draw the video frame on the canvas
+        if (Camera.videoPlaying) {
 
-            const predictions = await cocoSsdModel.detect(Camera.VIDEO); // Use Coco-SSD model to make predictions on the video
+            const capturedVideoFrame = ctx.getImageData(Camera.VIDEO, 0, 0, canvas.width, canvas.height);
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing new predictions
+            const predictions = await cocoSsdModel.detect(capturedVideoFrame);
 
-            predictions.forEach((prediction) => {
-                if (prediction.class == "person") {
-                    const imageData = ctx.getImageData(prediction.bbox[0], prediction.bbox[1], prediction.bbox[2], prediction.bbox[3]); // Get image data for the predicted bounding box
-                    
-                    console.log(imageData)
-                    
-                    tf.tidy(function () { // Perform TensorFlow operations without memory leaks
-                        let videoFrameAsTensor = tf.browser.fromPixels(imageData).div(255); // Convert the image data to a tensor and normalize
-                        let resizedTensorFrame = tf.image.resizeBilinear(videoFrameAsTensor, [Camera.MOBILE_NET_INPUT_HEIGHT, Camera.MOBILE_NET_INPUT_WIDTH], true); // Resize the tensor to match the input size of the MobileNet model
-                        let imageFeatures = mobilenet.predict(resizedTensorFrame.expandDims()); // Get the image features using MobileNet
-                        let predict = model.predict(imageFeatures).squeeze(); // Use the AI model to make predictions on the image features
-                        let highestIndex = predict.argMax().arraySync(); // Get the index of the highest prediction value
-                        let predictionArray = predict.arraySync(); // Convert the predictions tensor to an array
+            predictedFrameQueue.push({ image: capturedVideoFrame, predictions });
 
-                        //console.log(predictionArray)
+            processFrames()
 
-                        let text = `${labels[highestIndex]}: ${Math.floor(predictionArray[highestIndex] * 100)} % confidence`; // Create the text to display above the rectangle
-                        drawSquare(
-                            prediction.bbox[0],
-                            prediction.bbox[1],
-                            {
-                                width: prediction.bbox[2],
-                                height: prediction.bbox[3],
-                            },
-                            'red',
-                            text // Pass the text to draw above the rectangle
-                        );
-                    });
-                }
-            });
-
-            requestAnimationFrame(Prediction.predictLoop); // Request the next animation frame to continue the prediction loop
+            requestAnimationFrame(Prediction.predictLoop); // Start processing frames
         } else {
             console.log("Camera is off");
         }
@@ -100,7 +96,7 @@ const Prediction = {
             model.summary(); // Display the summary of the AI model
             labels = await Prediction.getModelLabelsNames(); // Get the labels/names of objects from the server
             await loadCoco(); // Load the Coco-SSD model for object detection
-            loadMobileNetFeatureModel(); // Load the MobileNet feature model
+            await loadMobileNetFeatureModel(); // Load the MobileNet feature model
         } catch (error) {
             console.error("Error loading the model:", error);
         }

@@ -31,7 +31,8 @@ video {
     display: block;
     background: #000000;
     width: var(--viedoWidth);
-    height: var(--viedoHeight)
+    height: var(--viedoHeight);
+    transform: scaleX(-1);/*mirror the webcam*/
 }
 
 a {
