@@ -17,33 +17,36 @@ const ctx = canvas.getContext("2d", { willReadFrequently: true }); // Get the 2D
 let cocoSsdModel = undefined; // Coco-SSD model for object detection
 let model = undefined; // AI model for predictions
 let labels = []; // Array to store the labels/names of objects the model can predict
-const maxQueueLength = 10; // Adjust this based on your preference
+const maxQueueLength = 20; // Adjust this based on your preference
 const predictedFrameQueue = [];
 
 // Function to draw a single frame with bounding boxes
-function drawFrame(firstPredictedFrame) {
+function drawFrame(frame) {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing new frame
-    const { image, predictions } = firstPredictedFrame; // Destructure the frame object
-
-    // Process and draw the frame with bounding boxes using drawSquare() function
+    const { image, predictions } = frame; // Destructure the frame object
+    
+    //Process and draw the frame with bounding boxes using drawSquare() function
     predictions.forEach((prediction) => {
         const { bbox, class: className } = prediction;
         const text = `${className}: ${Math.floor(prediction.score * 100)}% confidence`;
-        drawSquare(bbox[0], bbox[1], { width: bbox[2], height: bbox[3] }, 'red', text);
+        drawSquare(image, bbox[0], bbox[1], { width: bbox[2], height: bbox[3] }, 'red', text);
     });
 }
 // Function to process frames from the queue
-function processFrames() {
-    const firstPredictedFrame = undefined; 
-    if (predictedFrameQueue.length = maxQueueLength) {
-        firstPredictedFrame = predictedFrameQueue.shift(); // Get the first frame from the queue
+async function processFrames() {
+    
+    if (predictedFrameQueue.length > 0) {
+        const frame = predictedFrameQueue.shift(); // Dequeue the frame from the queue
+        drawFrame(frame); // Draw the frame with bounding boxes
+        
     }
-    drawFrame(firstPredictedFrame); // Draw the frame with bounding boxes
 }
 
 // Function to draw a single square on the canvas
-function drawSquare(x, y, size, color, text) {
-    ctx.beginPath(); // Begin drawing a path
+function drawSquare(image, x, y, size, color, text) {
+
+    ctx.putImageData(image, 0, 0);
+    ctx.beginPath(); // Begin drawing a pat
     ctx.rect(x, y, size.width, size.height); // Create a rectangle path
     ctx.strokeStyle = color; // Set the stroke color
     ctx.lineWidth = 1; // Set the stroke width
@@ -58,6 +61,7 @@ function drawSquare(x, y, size, color, text) {
 // Load the Coco-SSD model
 async function loadCoco() {
     cocoSsdModel = await cocoSsd.load(); // Load the Coco-SSD model for object detection
+    console.log('coocoSsd loaded')
 }
 
 // Prediction module with functions related to models and prediction loop
@@ -74,14 +78,18 @@ const Prediction = {
     // Prediction loop function to continuously make predictions
     async predictLoop() {
         if (Camera.videoPlaying) {
-
-            const capturedVideoFrame = ctx.getImageData(Camera.VIDEO, 0, 0, canvas.width, canvas.height);
-
+            ctx.drawImage(Camera.VIDEO, 0, 0, canvas.width, canvas.height)
+            const capturedVideoFrame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
             const predictions = await cocoSsdModel.detect(capturedVideoFrame);
+            //console.log(predictions)
 
             predictedFrameQueue.push({ image: capturedVideoFrame, predictions });
-
-            processFrames()
+            
+            if ( predictedFrameQueue.length >= maxQueueLength) {
+                processFrames(); // Process and render frames
+            }
+            await new Promise(resolve => setInterval(resolve, 100)); // Delay for 100ms
 
             requestAnimationFrame(Prediction.predictLoop); // Start processing frames
         } else {
@@ -124,4 +132,6 @@ const App = {
     },
 };
 
-App.init(); // Start the app by initializing everything
+document.addEventListener('DOMContentLoaded', () => {
+    App.init(); // Start the app by initializing everything
+});

@@ -22,7 +22,7 @@ canvas {
     top: 0;
     left: 0;
     width: var(--viedoWidth);
-    height: var(--viedoHeight)
+    height: var(--viedoHeight);
     }
 
 .startSection{
