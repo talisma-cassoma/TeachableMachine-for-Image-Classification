@@ -7,7 +7,7 @@ The detected objects and their predictions are displayed on an HTML canvas eleme
 // Import necessary modules
 tf.setBackend('webgl');
 import { Camera } from "./camera.js";
-import { mobilenet, loadMobileNetFeatureModel } from "./loadMobileNetFeatureModel.js";
+import { mobilenetModel, loadMobileNetFeatureModel } from "./loadMobileNetFeatureModel.js";
 
 // Get canvas and context for rendering
 const canvasElement = document.getElementById("myCanvas");
@@ -28,7 +28,7 @@ function identifyPerson(imageData){
     tf.tidy(function () {
         const videoFrameTensor = tf.browser.fromPixels(imageData).div(255);
         const resizedFrameTensor = tf.image.resizeBilinear(videoFrameTensor, [Camera.MOBILE_NET_INPUT_HEIGHT, Camera.MOBILE_NET_INPUT_WIDTH], true);
-        const imageFeatures = mobilenet.predict(resizedFrameTensor.expandDims());
+        const imageFeatures = mobilenetModel.predict(resizedFrameTensor.expandDims());
         const predictions = predictionModel.predict(imageFeatures).squeeze();
         highestIndex = predictions.argMax().arraySync();
         predictionArray = predictions.arraySync();

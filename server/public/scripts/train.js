@@ -1,11 +1,11 @@
 import { Camera } from "./camera.js"
-import { Class, CLASS_NAMES, predictionBarsProgress } from "./class.js"
+import { Class, classLabels, predictionBarsProgress } from "./class.js"
 import {
 	loadMobileNetFeatureModel,
-	trainingDataInputs,
-	trainingDataOutputs,
-	mobilenet,
-	STATUS,
+	trainingInputs,
+	trainingOutputs,
+	mobilenetModel,
+	 statusElement,
 	examplesCount
 } from "./loadMobileNetFeatureModel.js";
 
@@ -26,14 +26,14 @@ function predictLoop() {
 			let resizedTensorFrame = tf.image.resizeBilinear(videoFrameAsTensor, [Camera.MOBILE_NET_INPUT_HEIGHT,
 			Camera.MOBILE_NET_INPUT_WIDTH], true);
 
-			let imageFeatures = mobilenet.predict(resizedTensorFrame.expandDims());
+			let imageFeatures = mobilenetModel.predict(resizedTensorFrame.expandDims());
 			let prediction = model.predict(imageFeatures).squeeze();
 
 			let highestIndex = prediction.argMax().arraySync();
 			let predictionArray = prediction.arraySync();
 			
 
-			for (let i = 0; i < CLASS_NAMES.length; i++) {
+			for (let i = 0; i < classLabels.length; i++) {
 
 				let classPredictionConfidence = Math.floor(predictionArray[i] * 100) 
 				predictionBarsProgress[i].style.width = `${classPredictionConfidence}%` 
@@ -52,10 +52,10 @@ function logProgress(epoch, logs) {
 
 async function trainAndPredict() {
 	predict = false;
-	tf.util.shuffleCombo(trainingDataInputs, trainingDataOutputs);
-	let outputsAsTensor = tf.tensor1d(trainingDataOutputs, 'int32');
-	let oneHotOutputs = tf.oneHot(outputsAsTensor, CLASS_NAMES.length);
-	let inputsAsTensor = tf.stack(trainingDataInputs);
+	tf.util.shuffleCombo(trainingInputs, trainingOutputs);
+	let outputsAsTensor = tf.tensor1d(trainingOutputs, 'int32');
+	let oneHotOutputs = tf.oneHot(outputsAsTensor, classLabels.length);
+	let inputsAsTensor = tf.stack(trainingInputs);
 
 	let results = await model.fit(inputsAsTensor, oneHotOutputs, {
 		shuffle: true, batchSize: 5, epochs: 10,
@@ -74,7 +74,7 @@ const Train = {
 	buildModel() {
 		model = tf.sequential();
 		model.add(tf.layers.dense({ inputShape: [1024], units: 128, activation: 'relu' }));
-		model.add(tf.layers.dense({ units: CLASS_NAMES.length, activation: 'softmax' }));
+		model.add(tf.layers.dense({ units: classLabels.length, activation: 'softmax' }));
 
 		model.summary();
 
@@ -84,7 +84,7 @@ const Train = {
 			optimizer: 'adam',
 			// Use the correct loss function. If 2 classes of data, must use binaryCrossentropy.
 			// Else categoricalCrossentropy is used if more than 2 classes.
-			loss: (CLASS_NAMES.length === 2) ? 'binaryCrossentropy' : 'categoricalCrossentropy',
+			loss: (classLabels.length === 2) ? 'binaryCrossentropy' : 'categoricalCrossentropy',
 			// As this is a classification problem you can record accuracy in the logs too!
 			metrics: ['accuracy']
 		});
@@ -100,12 +100,12 @@ const Train = {
 	reset() {
 		predict = false;
 		examplesCount.length = 0;
-		for (let i = 0; i < trainingDataInputs.length; i++) {
-			trainingDataInputs[i].dispose();
+		for (let i = 0; i < trainingInputs.length; i++) {
+			trainingInputs[i].dispose();
 		}
-		trainingDataInputs.length = 0;
-		trainingDataOutputs.length = 0;
-		STATUS.innerText = 'No data collected';
+		trainingInputs.length = 0;
+		trainingOutputs.length = 0;
+		 statusElement.innerText = 'No data collected';
 
 		console.log('Tensors in memory: ' + tf.memory().numTensors);
 	},

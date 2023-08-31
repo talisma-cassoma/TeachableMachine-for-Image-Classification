@@ -1,7 +1,7 @@
 import { innerHtml } from "./html.js";
 import getRandomColor from "./randomColors.js";
 import gatherDataForClass from "./gatherDataForClass.js";
-import { CLASS_NAMES } from "./loadMobileNetFeatureModel.js";
+import { classLabels } from "./loadMobileNetFeatureModel.js";
 
 
 
@@ -25,7 +25,7 @@ const Class = {
         } else {
             //create a html element
             const classObject = document.createElement('article')
-            classObject.innerHTML = innerHtml.classBox(newClassName, CLASS_NAMES.length)
+            classObject.innerHTML = innerHtml.classBox(newClassName, classLabels.length)
             classObject.classList.add('classObject')
             classes.appendChild(classObject)
 
@@ -34,8 +34,8 @@ const Class = {
             dataCollectorButton.addEventListener("mousedown", gatherDataForClass);
             dataCollectorButton.addEventListener("mouseup", gatherDataForClass);
             // Populate the human readable names for classes.
-            CLASS_NAMES.push(dataCollectorButton.getAttribute("data-name"));
-            //console.log(CLASS_NAMES)
+            classLabels.push(dataCollectorButton.getAttribute("data-name"));
+            //console.log(classLabels)
             //array of nbrs of images colleccted div a each class div  
             numberOfImagesCollected.push(classObject.children[1].children[1].children[1])
             
@@ -62,4 +62,4 @@ const Class = {
 
 
 
-export { Class, CLASS_NAMES, predictionBarsProgress}
+export { Class, classLabels, predictionBarsProgress}

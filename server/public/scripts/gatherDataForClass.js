@@ -1,11 +1,11 @@
 import { Camera } from "./camera.js";
 import {
-    mobilenet,
-    trainingDataInputs,
-    trainingDataOutputs,
-    examplesCount,
-    CLASS_NAMES,
-    STATUS
+    mobilenetModel,
+    trainingInputs,
+    trainingOutputs,
+    examplesCounts,
+    classLabels,
+     statusElement
 } from "./loadMobileNetFeatureModel.js";
 /**
  * Handle Data Gather for button mouseup/mousedown.
@@ -21,24 +21,24 @@ function dataGatherLoop() {
             let resizedTensorFrame = tf.image.resizeBilinear(videoFrameAsTensor, [Camera.MOBILE_NET_INPUT_HEIGHT,
             Camera.MOBILE_NET_INPUT_WIDTH], true);
             let normalizedTensorFrame = resizedTensorFrame.div(255);
-            return mobilenet.predict(normalizedTensorFrame.expandDims()).squeeze();
+            return mobilenetModel.predict(normalizedTensorFrame.expandDims()).squeeze();
         });
 
-        trainingDataInputs.push(imageFeatures);
-        trainingDataOutputs.push(gatherDataState);
+        trainingInputs.push(imageFeatures);
+        trainingOutputs.push(gatherDataState);
 
         // Intialize array index element if currently undefined.
         if (examplesCount[gatherDataState] === undefined) {
-            examplesCount[gatherDataState] = 0;
+            examplesCounts[gatherDataState] = 0;
         }
-        examplesCount[gatherDataState]++;
+        examplesCounts[gatherDataState]++;
 
         const numberOfImagesCollected = document.querySelectorAll('.numberOfImagesCollected')
 
 
-        for (let n = 0; n < CLASS_NAMES.length; n++) {
+        for (let n = 0; n < classLabels.length; n++) {
 
-            numberOfImagesCollected[n].innerText = (examplesCount[n] === undefined )? 0 : examplesCount[n]
+            numberOfImagesCollected[n].innerText = (examplesCount[n] === undefined )? 0 : examplesCounts[n]
         }
         window.requestAnimationFrame(dataGatherLoop);
     }

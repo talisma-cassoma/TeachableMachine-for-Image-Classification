@@ -1,15 +1,15 @@
-import { STATUS } from "./loadMobileNetFeatureModel.js";
-import { CLASS_NAMES } from "./class.js"
+import {  statusElement } from "./loadMobileNetFeatureModel.js";
+import { classLabels } from "./class.js"
 
 export async function downloadModel(model) {
     if (model === undefined) {
         console.log("model undefined")
     } else {
         //save labels on model
-        // model.config = {labels: CLASS_NAMES};
+        // model.config = {labels: classLabels};
         await model.save('http://localhost:3000/upload')
 
-        const data = { labels: CLASS_NAMES };
+        const data = { labels: classLabels };
 
         let response = await fetch('http://localhost:3000/train/labels', {
             method: 'POST',
@@ -24,6 +24,6 @@ export async function downloadModel(model) {
         });
 
         console.log('!!MODEL DOWNLOADED!!')
-        STATUS.innerText = '!! MODEL DOWNLOADED !!'
+         statusElement.innerText = '!! MODEL DOWNLOADED !!'
     }
 }
