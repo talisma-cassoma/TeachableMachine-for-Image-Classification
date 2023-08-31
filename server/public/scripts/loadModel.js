@@ -20,15 +20,40 @@ let labels = []; // Array to store the labels/names of objects the model can pre
 const maxQueueLength = 20; // Adjust this based on your preference
 const predictedFrameQueue = [];
 
+function personIdentifaction(imageData){
+    // Get image data for the predicted bounding box
+    let predictionArray
+    let highestIndex
+
+    tf.tidy(function () { // Perform TensorFlow operations without memory leaks
+        let videoFrameAsTensor = tf.browser.fromPixels(imageData).div(255); // Convert the image data to a tensor and normalize
+        let resizedTensorFrame = tf.image.resizeBilinear(videoFrameAsTensor, [Camera.MOBILE_NET_INPUT_HEIGHT, Camera.MOBILE_NET_INPUT_WIDTH], true); // Resize the tensor to match the input size of the MobileNet model
+        let imageFeatures = mobilenet.predict(resizedTensorFrame.expandDims()); // Get the image features using MobileNet
+        let predict = model.predict(imageFeatures).squeeze(); // Use the AI model to make predictions on the image features
+        highestIndex = predict.argMax().arraySync(); // Get the index of the highest prediction value
+         predictionArray = predict.arraySync(); // Convert the predictions tensor to an array
+
+        //console.log(predictionArray)
+    })
+    return `${labels[highestIndex]}: ${Math.floor(predictionArray[highestIndex] * 100)} % confidence`; // Create the text to display above the rectangle                
+}
+
 // Function to draw a single frame with bounding boxes
-function drawFrame(frame) {
+ function drawFrame(frame) {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing new frame
     const { image, predictions } = frame; // Destructure the frame object
     
     //Process and draw the frame with bounding boxes using drawSquare() function
-    predictions.forEach((prediction) => {
+    predictions.forEach( (prediction) => {
+        let text = '';
         const { bbox, class: className } = prediction;
-        const text = `${className}: ${Math.floor(prediction.score * 100)}% confidence`;
+        if(className == "person"){
+            const imageData = ctx.getImageData(bbox[0], bbox[1], bbox[2], bbox[3]);
+            text = personIdentifaction(imageData);
+        }
+        else{
+            text = `${className}: ${Math.floor(prediction.score * 100)}% confidence`;
+        }
         drawSquare(image, bbox[0], bbox[1], { width: bbox[2], height: bbox[3] }, 'red', text);
     });
 }
@@ -87,9 +112,9 @@ const Prediction = {
             predictedFrameQueue.push({ image: capturedVideoFrame, predictions });
             
             if ( predictedFrameQueue.length >= maxQueueLength) {
-                processFrames(); // Process and render frames
+                await processFrames(); // Process and render frames
             }
-            await new Promise(resolve => setInterval(resolve, 100)); // Delay for 100ms
+            //await new Promise(resolve => setInterval(resolve, 100)); // Delay for 100ms
 
             requestAnimationFrame(Prediction.predictLoop); // Start processing frames
         } else {
@@ -99,12 +124,15 @@ const Prediction = {
 
     // Function to load the AI model from the server
     async loadModel() {
+        console.log('loading models and labels')
         try {
-            model = await tf.loadLayersModel("http://localhost:3000/assets/uploads/model.json"); // Load the AI model from the server
+            await Promise.all([
+                model = await tf.loadLayersModel("http://localhost:3000/assets/uploads/model.json"), // Load the AI model from the server
+                labels = await Prediction.getModelLabelsNames(), // Get the labels/names of objects from the server
+                loadCoco(), // Load the Coco-SSD model for object detection
+                loadMobileNetFeatureModel() // Load the MobileNet feature model
+            ]);
             model.summary(); // Display the summary of the AI model
-            labels = await Prediction.getModelLabelsNames(); // Get the labels/names of objects from the server
-            await loadCoco(); // Load the Coco-SSD model for object detection
-            await loadMobileNetFeatureModel(); // Load the MobileNet feature model
         } catch (error) {
             console.error("Error loading the model:", error);
         }
