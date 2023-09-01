@@ -1,12 +1,14 @@
-:root{
+:root {
     --viedoHeight: 480px;
     --viedoWidth: 640px;
 }
+
 body {
     font-family: BoingSemiBold, Helvetica, Arial, sans-serif;
     justify-content: center;
 }
-main{
+
+main {
     display: flex;
     gap: 2em;
     justify-content: space-between;
@@ -33,7 +35,8 @@ video {
     background: #000000;
     /* width: var(--viedoWidth);
     height: var(--viedoHeight); */
-    transform: scaleX(-1);/*mirror the webcam*/
+    transform: scaleX(-1);
+    /*mirror the webcam*/
 }
 
 a {
@@ -97,19 +100,23 @@ button {
 .classObject .body>* {
     margin-top: 1em;
 }
-.predictions{
+
+.predictions {
     width: max-content;
 }
-.progressBarContainer{
+
+.progressBarContainer {
     display: flex;
     width: auto;
     justify-content: space-between;
     align-items: center;
     margin: 1em 0;
 }
-.progressBarContainer > span{
- margin-right: 1em;
+
+.progressBarContainer>span {
+    margin-right: 1em;
 }
+
 .progessBar {
     width: 12em;
     height: 2em;
@@ -127,11 +134,12 @@ button {
     border-radius: .4em;
 }
 
-.imagesCollected{
+.imagesCollected {
     display: flex;
     justify-content: space-between;
 }
-.numberOfImagesCollected{
+
+.numberOfImagesCollected {
     display: flex;
     width: 1.6em;
     height: 1.6em;

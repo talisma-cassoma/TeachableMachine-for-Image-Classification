@@ -37,11 +37,13 @@ function identifyPerson(imageData){
     return `${objectLabels[highestIndex]}: ${Math.floor(predictionArray[highestIndex] * 100)}% confidence`;
 }
 
-function drawFrameWithBoundingBoxes(frame) {
+async function drawFrameWithBoundingBoxes(frame) {
     canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
     const { image, predictions } = frame;
-
-    predictions.forEach((prediction) => {
+    
+    canvasContext.putImageData(image, 0, 0);
+    
+    await predictions.forEach((prediction) => {
         let text = '';
         const { bbox, class: className } = prediction;
 
@@ -52,9 +54,10 @@ function drawFrameWithBoundingBoxes(frame) {
             text = `${className}: ${Math.floor(prediction.score * 100)}% confidence`;
         }
 
-        drawSquareOnCanvas(image, bbox[0], bbox[1], { width: bbox[2], height: bbox[3] }, 'red', text);
+        drawSquareOnCanvas( bbox[0], bbox[1], { width: bbox[2], height: bbox[3] }, 'red', text);
     });
 }
+
 
 async function processPredictionFrames() {
     if (predictionQueue.length > 0) {
@@ -63,8 +66,8 @@ async function processPredictionFrames() {
     }
 }
 
-function drawSquareOnCanvas(image, x, y, size, color, text) {
-    canvasContext.putImageData(image, 0, 0);
+function drawSquareOnCanvas(x, y, size, color, text) {
+    
     canvasContext.beginPath();
     canvasContext.rect(x, y, size.width, size.height);
     canvasContext.strokeStyle = color;
@@ -103,7 +106,7 @@ const PredictionModule = {
                 await processPredictionFrames();
             }
 
-            setTimeout(PredictionModule.startPredictionLoop, 100);
+            setInterval(PredictionModule.startPredictionLoop, 100);
         } else {
             console.log("Camera is off");
         }
