@@ -8,7 +8,6 @@ const classLabels = [];
 const statusElement = document.getElementById("status");
 let trainingInputs = [];
 let trainingOutputs = [];
-let exampleCounts = [];
 
 async function loadMobileNetFeatureModel() {
     const modelURL =
@@ -35,13 +34,19 @@ async function loadMobileNetFeatureModel() {
     });
     console.log('MobileNet v3 is ready for use');
 }
+async function getModelLabels() {
+    const response = await fetch("http://localhost:3000/train/labels");
+    const jsonData = await response.json();
+    const classNames = jsonData.labels;
+    return classNames;
+}
 
 export {
     loadMobileNetFeatureModel,
     mobilenetModel,
     trainingInputs,
     trainingOutputs,
-    exampleCounts,
     classLabels,
-    statusElement
+    statusElement,
+    getModelLabels
 }

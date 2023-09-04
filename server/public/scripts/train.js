@@ -5,9 +5,8 @@ import {
 	trainingInputs,
 	trainingOutputs,
 	mobilenetModel,
-	 statusElement,
-	examplesCount
-} from "./loadMobileNetFeatureModel.js";
+	statusElement,
+} from "./loadMobileNetFeatureModel.js"
 
 import { downloadModel } from "./downloadModel.js";
 
@@ -26,7 +25,7 @@ function predictLoop() {
 			let resizedTensorFrame = tf.image.resizeBilinear(videoFrameAsTensor, [Camera.MOBILE_NET_INPUT_HEIGHT,
 			Camera.MOBILE_NET_INPUT_WIDTH], true);
 
-			let imageFeatures = mobilenetModel.predict(resizedTensorFrame.expandDims());
+			let imageFeatures =  mobilenetModel.predict(resizedTensorFrame.expandDims());
 			let prediction = model.predict(imageFeatures).squeeze();
 
 			let highestIndex = prediction.argMax().arraySync();
@@ -52,6 +51,7 @@ function logProgress(epoch, logs) {
 
 async function trainAndPredict() {
 	predict = false;
+	
 	tf.util.shuffleCombo(trainingInputs, trainingOutputs);
 	let outputsAsTensor = tf.tensor1d(trainingOutputs, 'int32');
 	let oneHotOutputs = tf.oneHot(outputsAsTensor, classLabels.length);
@@ -99,13 +99,13 @@ const Train = {
 	},
 	reset() {
 		predict = false;
-		examplesCount.length = 0;
+		examplesCounts.length = 0;
 		for (let i = 0; i < trainingInputs.length; i++) {
 			trainingInputs[i].dispose();
 		}
 		trainingInputs.length = 0;
 		trainingOutputs.length = 0;
-		 statusElement.innerText = 'No data collected';
+		statusElement.innerText = 'No data collected';
 
 		console.log('Tensors in memory: ' + tf.memory().numTensors);
 	},

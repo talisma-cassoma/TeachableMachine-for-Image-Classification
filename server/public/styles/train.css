@@ -2,12 +2,17 @@ body {
     display: flex;
     background-color: #E8EAED;
 }
-section{
+
+section {
     margin: 5rem 2em;
 }
-video{
+
+video {
     margin: 1em 0;
+    width: var(--viedoWidth);
+    height: var(--viedoHeight);
 }
+
 #status {
     font-size: 150%;
 }

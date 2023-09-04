@@ -7,95 +7,39 @@ The detected objects and their predictions are displayed on an HTML canvas eleme
 // Import necessary modules
 tf.setBackend('webgl');
 import { Camera } from "./camera.js";
-import { mobilenetModel, loadMobileNetFeatureModel } from "./loadMobileNetFeatureModel.js";
+import { loadPredictionModel, cocoSsdModel } from './predictionsFunctions.js'
+//import { drawFrameWithBoundingBoxes, canvasContext, canvasElement } from './worker.js'
 
-// Get canvas and context for rendering
-const canvasElement = document.getElementById("myCanvas");
-const canvasContext = canvasElement.getContext("2d", { willReadFrequently: true });
-
+const monWorker = new Worker('./scripts/worker.js', { type: 'module' });
 // Variables to store model and prediction data
-let cocoSsdModel = undefined;
-let predictionModel = undefined;
-let objectLabels = [];
 const maxPredictionQueueLength = 20;
 const predictionQueue = [];
-
-function identifyPerson(imageData){
-    // Perform AI operations without memory leaks
-    let predictionArray;
-    let highestIndex;
-
-    tf.tidy(function () {
-        const videoFrameTensor = tf.browser.fromPixels(imageData).div(255);
-        const resizedFrameTensor = tf.image.resizeBilinear(videoFrameTensor, [Camera.MOBILE_NET_INPUT_HEIGHT, Camera.MOBILE_NET_INPUT_WIDTH], true);
-        const imageFeatures = mobilenetModel.predict(resizedFrameTensor.expandDims());
-        const predictions = predictionModel.predict(imageFeatures).squeeze();
-        highestIndex = predictions.argMax().arraySync();
-        predictionArray = predictions.arraySync();
-    });
-
-    return `${objectLabels[highestIndex]}: ${Math.floor(predictionArray[highestIndex] * 100)}% confidence`;
-}
-
-async function drawFrameWithBoundingBoxes(frame) {
-    canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    const { image, predictions } = frame;
-    
-    canvasContext.putImageData(image, 0, 0);
-    
-    await predictions.forEach((prediction) => {
-        let text = '';
-        const { bbox, class: className } = prediction;
-
-        if (className == "person") {
-            const imageData = canvasContext.getImageData(bbox[0], bbox[1], bbox[2], bbox[3]);
-            text = identifyPerson(imageData);
-        } else {
-            text = `${className}: ${Math.floor(prediction.score * 100)}% confidence`;
-        }
-
-        drawSquareOnCanvas( bbox[0], bbox[1], { width: bbox[2], height: bbox[3] }, 'red', text);
-    });
-}
-
 
 async function processPredictionFrames() {
     if (predictionQueue.length > 0) {
         const frame = predictionQueue.shift();
-        drawFrameWithBoundingBoxes(frame);
+
+        monWorker.postMessage(frame);
+        console.log("Message envoyé au worker");
     }
-}
 
-function drawSquareOnCanvas(x, y, size, color, text) {
-    
-    canvasContext.beginPath();
-    canvasContext.rect(x, y, size.width, size.height);
-    canvasContext.strokeStyle = color;
-    canvasContext.lineWidth = 1;
-    canvasContext.stroke();
-
-    if (text) {
-        canvasContext.fillStyle = color;
-        canvasContext.font = '8px Arial';
-        canvasContext.fillText(text, x + 5, y + 10);
-    }
-}
-
-async function loadCocoSsdModel() {
-    cocoSsdModel = await cocoSsd.load();
-    console.log('Coco-SSD model loaded');
+    monWorker.onmessage = function (event) {
+        const { action } = event.data;
+        if (action == "finished") {
+            console.log("Message reçu depuis le worker");
+            return;
+        }
+    };
 }
 
 const PredictionModule = {
-    async getModelLabels() {
-        const response = await fetch("http://localhost:3000/train/labels");
-        const jsonData = await response.json();
-        const classNames = jsonData.labels;
-        return classNames;
-    },
 
     async startPredictionLoop() {
         if (Camera.videoPlaying) {
+            // Get canvas and context for rendering
+            const canvasElement = document.getElementById("myCanvas");
+            const canvasContext = canvasElement.getContext("2d", { willReadFrequently: true });
+
             canvasContext.drawImage(Camera.VIDEO, 0, 0, canvasElement.width, canvasElement.height);
             const capturedFrame = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
 
@@ -106,27 +50,12 @@ const PredictionModule = {
                 await processPredictionFrames();
             }
 
-            setInterval(PredictionModule.startPredictionLoop, 100);
+            requestAnimationFrame(PredictionModule.startPredictionLoop);
+
         } else {
             console.log("Camera is off");
         }
     },
-
-    async loadPredictionModel() {
-        console.log('Loading models and labels');
-        try {
-            await Promise.all([
-                predictionModel = await tf.loadLayersModel("http://localhost:3000/assets/uploads/model.json"),
-                objectLabels = await PredictionModule.getModelLabels(),
-                loadCocoSsdModel(),
-                loadMobileNetFeatureModel()
-            ]);
-            predictionModel.summary();
-        } catch (error) {
-            console.error("Error loading the model:", error);
-        }
-    },
-
     enablePredictionLoopOnClick() {
         const predictionButton = document.querySelector(".enablePredictionButton");
         predictionButton.addEventListener("click", () => {
@@ -142,7 +71,7 @@ const PredictionModule = {
 const MainApp = {
     async initialize() {
         Camera.init();
-        await PredictionModule.loadPredictionModel();
+        await loadPredictionModel();
         PredictionModule.enablePredictionLoopOnClick();
     },
 };

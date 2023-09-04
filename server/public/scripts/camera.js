@@ -1,4 +1,3 @@
-
 const Camera = {
 
   videoPlaying: false,
@@ -25,7 +24,7 @@ const Camera = {
         // width: 640, 
         // height: 480,
         frameRate: {
-          ideal: 50
+          ideal: 56
         } 
       }
        // Activate the webcam stream.
@@ -39,10 +38,6 @@ const Camera = {
     }else {
       console.warn("getUserMedia() is not supported by your browser");
     }
-  },
-
-  disable(){
- // TODO: Fill this out later in the codelab!
   }
 }
 

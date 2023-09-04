@@ -3,15 +3,14 @@ import {
     mobilenetModel,
     trainingInputs,
     trainingOutputs,
-    examplesCounts,
     classLabels,
-     statusElement
 } from "./loadMobileNetFeatureModel.js";
 /**
  * Handle Data Gather for button mouseup/mousedown.
  **/
 const STOP_DATA_GATHER = -1;
 let gatherDataState = STOP_DATA_GATHER;
+let exampleCounts = [];
 
 
 function dataGatherLoop() {
@@ -28,17 +27,17 @@ function dataGatherLoop() {
         trainingOutputs.push(gatherDataState);
 
         // Intialize array index element if currently undefined.
-        if (examplesCount[gatherDataState] === undefined) {
-            examplesCounts[gatherDataState] = 0;
+        if (exampleCounts[gatherDataState] === undefined) {
+            exampleCounts[gatherDataState] = 0;
         }
-        examplesCounts[gatherDataState]++;
+        exampleCounts[gatherDataState]++;
 
         const numberOfImagesCollected = document.querySelectorAll('.numberOfImagesCollected')
 
 
         for (let n = 0; n < classLabels.length; n++) {
 
-            numberOfImagesCollected[n].innerText = (examplesCount[n] === undefined )? 0 : examplesCounts[n]
+            numberOfImagesCollected[n].innerText = (exampleCounts[n] === undefined )? 0 : exampleCounts[n]
         }
         window.requestAnimationFrame(dataGatherLoop);
     }

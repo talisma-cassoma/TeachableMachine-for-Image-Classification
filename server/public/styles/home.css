@@ -16,6 +16,9 @@ main{
 	overflow: hidden;
     position: relative;
 }
+video{
+visibility: hidden;
+}
 canvas {
     display: block;
     position: absolute;

@@ -45,9 +45,6 @@ routes.get('/train', (resquest, response) => {
     return response.sendFile(__dirname + "/views/train.html")
 })
 
-routes.get('/test', (resquest, response) => {
-    return response.sendFile(__dirname + "/views/test.html")
-})
 
  routes.post('/train/labels', async (request, response) => {
     const labels = await Labels.save(request.body)
