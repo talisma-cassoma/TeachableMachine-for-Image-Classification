@@ -8,7 +8,7 @@ The detected objects and their predictions are displayed on an HTML canvas eleme
 tf.setBackend('webgl');
 import { Camera } from "./camera.js";
 import { loadPredictionModel, cocoSsdModel } from './predictionsFunctions.js'
-//import { drawFrameWithBoundingBoxes, canvasContext, canvasElement } from './worker.js'
+import drawFrameWithBoundingBoxes from './drawFrameWithBoundingBoxes.js'
 
 const monWorker = new Worker('./scripts/worker.js', { type: 'module' });
 // Variables to store model and prediction data
@@ -18,18 +18,8 @@ const predictionQueue = [];
 async function processPredictionFrames() {
     if (predictionQueue.length > 0) {
         const frame = predictionQueue.shift();
-
-        monWorker.postMessage(frame);
-        console.log("Message envoyé au worker");
+        drawFrameWithBoundingBoxes(frame)
     }
-
-    monWorker.onmessage = function (event) {
-        const { action } = event.data;
-        if (action == "finished") {
-            console.log("Message reçu depuis le worker");
-            return;
-        }
-    };
 }
 
 const PredictionModule = {

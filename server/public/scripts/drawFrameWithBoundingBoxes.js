@@ -15,7 +15,7 @@ function drawSquareOnCanvas(x, y, size, color, text) {
   }
 }
 
-async function drawFrameWithBoundingBoxes(frame) {
+export default async function drawFrameWithBoundingBoxes(frame) {
   canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
   const { image, predictions } = frame;
 
@@ -36,10 +36,5 @@ async function drawFrameWithBoundingBoxes(frame) {
   });
 }
 
-self.onmessage = async (event) => {
-  const frame = event.data;
-  debugger
-  await drawFrameWithBoundingBoxes(frame);
-  console.log("Envoi du message de retour au script principal");
-  self.postMessage("finished");
-};
+
+ 
