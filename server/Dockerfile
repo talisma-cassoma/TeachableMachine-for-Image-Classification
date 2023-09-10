@@ -1,5 +1,5 @@
 # Use the node:lts image as the base image
-FROM justadudewhohacks/opencv-nodejs
+FROM node:latest
 
 # Set the working directory inside the container
 WORKDIR /usr/app
@@ -18,3 +18,4 @@ EXPOSE 3000
 
 # Start your application using the latest Node.js version
 CMD ["npm", "start"]
+
