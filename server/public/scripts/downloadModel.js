@@ -1,4 +1,4 @@
-import {  statusElement } from "./loadMobileNetFeatureModel.js";
+import {  statusElement } from "./loadSavedLoadedModel.js";
 import { classLabels } from "./class.js"
 
 export async function downloadModel(model) {

@@ -1,6 +1,10 @@
-import { mobilenetModel, getModelLabels, loadMobileNetFeatureModel} from "./loadMobileNetFeatureModel.js";
+import "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"
+import "https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"
 
-tf.setBackend('webgl');
+import { mobilenetModel, getModelLabels, loadMobileNetFeatureModel} from "./loadModelsForPredictions.js";
+const {tf, cocoSsd} = self
+tf.backend("webgl")
+
 const MOBILE_NET_INPUT_WIDTH = 224;
 const MOBILE_NET_INPUT_HEIGHT= 224;
 let cocoSsdModel = undefined;
@@ -23,18 +27,20 @@ async function loadPredictionModel() {
       ]);
   } catch (error) {
       console.error("Error loading the model:", error);
-      statusElement.innerText = 'couldnt load the models and labels from server';
   }
 }
 
-function identifyPerson(imageData){
+function identifyPerson(imageData, bbox){
   // Perform AI operations without memory leaks
   let predictionArray;
   let highestIndex;
 
   tf.tidy(function () {
-      const videoFrameTensor = tf.browser.fromPixels(imageData).div(255);
-      const resizedFrameTensor = tf.image.resizeBilinear(videoFrameTensor, [MOBILE_NET_INPUT_HEIGHT, MOBILE_NET_INPUT_WIDTH], true);
+      const videoFrameTensor = tf.browser.fromPixels(imageData).div(255); // Convert image element to TensorFlow tensor
+    // Crop the image
+    const [y1, x1, y2, x2] = bbox;
+      const croppedImage = videoFrameTensor.slice([y1, x1, 0], [y2 - y1, x2 - x1, 3]);
+      const resizedFrameTensor = tf.image.resizeBilinear(croppedImage, [MOBILE_NET_INPUT_HEIGHT, MOBILE_NET_INPUT_WIDTH], true);
       const imageFeatures = mobilenetModel.predict(resizedFrameTensor.expandDims());
       const predictions = predictionModel.predict(imageFeatures).squeeze();
       highestIndex = predictions.argMax().arraySync();
@@ -44,13 +50,9 @@ function identifyPerson(imageData){
   return `${objectLabels[highestIndex]}: ${Math.floor(predictionArray[highestIndex] * 100)}% confidence`;
 }
 
-const canvasElement = document.getElementById("myCanvas");
-const canvasContext = canvasElement.getContext("2d", { willReadFrequently: true });
-
 export {
   loadCocoSsdModel,
   identifyPerson,
   loadPredictionModel,
-  cocoSsdModel,
-  canvasContext, canvasElement
+  cocoSsdModel
 }

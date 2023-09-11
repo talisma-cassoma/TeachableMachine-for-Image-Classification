@@ -1,4 +1,5 @@
- import { identifyPerson, canvasContext, canvasElement } from "./predictionsFunctions.js";
+const canvasElement = document.getElementById("myCanvas");
+const canvasContext = canvasElement.getContext("2d", { willReadFrequently: true });
 
 function drawSquareOnCanvas(x, y, size, color, text) {
 
@@ -15,26 +16,26 @@ function drawSquareOnCanvas(x, y, size, color, text) {
   }
 }
 
-export default async function drawFrameWithBoundingBoxes(frame) {
-  canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
+export async function drawFrameWithBoundingBoxes(frame) {
+  await canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
   const { image, predictions } = frame;
 
-  canvasContext.putImageData(image, 0, 0);
+  await canvasContext.putImageData(image, 0, 0);
 
-  await predictions.forEach((prediction) => {
-    let text = '';
+  for (const prediction of predictions) {
     const { bbox, class: className } = prediction;
 
-    if (className == "person") {
-      const imageData = canvasContext.getImageData(bbox[0], bbox[1], bbox[2], bbox[3]);
-      text = identifyPerson(imageData);
-    } else {
-      text = `${className}: ${Math.floor(prediction.score * 100)}% confidence`;
-    }
+    let text = `${className}: ${Math.floor(prediction.score * 100)}% confidence`;
 
-    drawSquareOnCanvas(bbox[0], bbox[1], { width: bbox[2], height: bbox[3] }, 'red', text);
-  });
+    drawSquareOnCanvas(
+      bbox[0], 
+      bbox[1], 
+      { width: bbox[2], height: bbox[3] }, 
+      'red', 
+      text
+    );
+
+    // Add a delay of 100 milliseconds (adjust as needed)
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
 }
-
-
- 

@@ -17,8 +17,10 @@ main{
     position: relative;
 }
 video{
-visibility: hidden;
-}
+    /* visibility: hidden;*/
+    width: 640px;
+    height: 480px;
+} 
 canvas {
     display: block;
     position: absolute;

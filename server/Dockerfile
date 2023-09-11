@@ -1,5 +1,5 @@
 # Use the node:lts image as the base image
-FROM justadudewhohacks/opencv-nodejs
+FROM node:latest
 
 # Set the working directory inside the container
 WORKDIR /usr/app

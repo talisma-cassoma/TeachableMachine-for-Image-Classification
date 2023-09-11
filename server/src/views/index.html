@@ -10,11 +10,11 @@
     <link rel="stylesheet" href="/styles/main.css" />
     <link rel="stylesheet" href="/styles/home.css" />
 
-    <!-- Import TensorFlow.js library -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js" type="text/javascript"></script>
+    <!-- Import TensorFlow.js library-->
+    <!--script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js" type="text/javascript"></script-->
      <!-- Load the coco-ssd model to use to recognize things in images -->
-     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
-</head>
+     <!--script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script-->
+</head> 
 
 <body>
     <header>
@@ -26,7 +26,7 @@
     <main>
         <section>
             <div class="view">
-                <video id="webcam" autoplay muted></video>
+                <video id="webcam" autoplay muted ></video>
                 <canvas id="myCanvas"></canvas>
             </div>
             <div class="startSection">
@@ -88,8 +88,7 @@
             <div class="predictions"></div>
         </section>
     </main>
-    <script type="module" src="/scripts/camera.js"></script>
-    <script type="module" src="/scripts/loadModel.js"></script>
+    <script type="module" src="/scripts/predict.js"></script>
 </body>
 
 </html>

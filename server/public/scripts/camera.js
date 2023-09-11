@@ -21,8 +21,8 @@ const Camera = {
       const constraints = {
         video: true,
         audio: false,
-        // width: 640, 
-        // height: 480,
+        width: 640, 
+        height: 480,
         frameRate: {
           ideal: 56
         } 

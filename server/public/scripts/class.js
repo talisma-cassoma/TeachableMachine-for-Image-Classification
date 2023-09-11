@@ -1,7 +1,7 @@
 import { innerHtml } from "./html.js";
 import getRandomColor from "./randomColors.js";
 import gatherDataForClass from "./gatherDataForClass.js";
-import { classLabels } from "./loadMobileNetFeatureModel.js";
+import { classLabels } from "./loadSavedLoadedModel.js";
 
 
 

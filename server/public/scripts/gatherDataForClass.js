@@ -4,7 +4,7 @@ import {
     trainingInputs,
     trainingOutputs,
     classLabels,
-} from "./loadMobileNetFeatureModel.js";
+} from "./loadSavedLoadedModel.js";
 /**
  * Handle Data Gather for button mouseup/mousedown.
  **/
