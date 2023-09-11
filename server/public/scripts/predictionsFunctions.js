@@ -1,4 +1,4 @@
-import { mobilenetModel, getModelLabels, loadMobileNetFeatureModel} from "./loadMobileNetFeatureModel.js";
+import { mobilenetModel, getModelLabels, loadMobileNetFeatureModel} from "./loadSavedLoadedModel.js";
 
 tf.setBackend('webgl');
 const MOBILE_NET_INPUT_WIDTH = 224;
