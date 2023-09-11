@@ -30,24 +30,24 @@ async function loadPredictionModel() {
   }
 }
 
-function identifyPerson(imageData, bbox){
-  // Perform AI operations without memory leaks
-  let predictionArray;
-  let highestIndex;
-
+async function identifyPerson(capturedFrame, personBbox) {
+  let prediction;
   tf.tidy(function () {
-      const videoFrameTensor = tf.browser.fromPixels(imageData).div(255); // Convert image element to TensorFlow tensor
-    // Crop the image
-    const [y1, x1, y2, x2] = bbox;
-      const croppedImage = videoFrameTensor.slice([y1, x1, 0], [y2 - y1, x2 - x1, 3]);
-      const resizedFrameTensor = tf.image.resizeBilinear(croppedImage, [MOBILE_NET_INPUT_HEIGHT, MOBILE_NET_INPUT_WIDTH], true);
-      const imageFeatures = mobilenetModel.predict(resizedFrameTensor.expandDims());
-      const predictions = predictionModel.predict(imageFeatures).squeeze();
-      highestIndex = predictions.argMax().arraySync();
-      predictionArray = predictions.arraySync();
-  });
+  // Convert the image element to a tensor
+  const imageTensor = tf.browser.fromPixels(capturedFrame);
 
-  return `${objectLabels[highestIndex]}: ${Math.floor(predictionArray[highestIndex] * 100)}% confidence`;
+  // Crop the ROI from the image tensor using tf.image.cropAndResize
+  const [x, y, width, height] = personBbox;
+  const [imageHeight, imageWidth] = imageTensor.shape.slice(0, 2);
+  const boxes = [[y / imageHeight, x / imageWidth, (y + height) / imageHeight, (x + width) / imageWidth]];
+  const boxIndices = [0];
+  const cropSize = [224, 224];
+  const roiTensor = tf.image.cropAndResize(imageTensor, boxes, boxIndices, cropSize);
+
+  // Use the mobilenet model to predict the class of the ROI
+  prediction = mobilenetModel.predict(roiTensor);
+  })
+  return prediction;
 }
 
 export {
