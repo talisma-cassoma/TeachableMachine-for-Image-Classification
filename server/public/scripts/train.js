@@ -6,7 +6,7 @@ import {
 	trainingOutputs,
 	mobilenetModel,
 	statusElement,
-} from "./loadMobileNetFeatureModel.js"
+} from "./loadSavedLoadedModel.js"
 
 import { downloadModel } from "./downloadModel.js";
 
