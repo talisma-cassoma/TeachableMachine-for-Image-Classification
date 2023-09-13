@@ -46,7 +46,7 @@ const PredictionModule = {
             canvasContext.drawImage(Camera.VIDEO, 0, 0, canvasElement.width, canvasElement.height);
             Camera.VIDEO.style.visibility = "hidden";
             const capturedFrame = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
-
+            //console.log('the capturedFrame:', capturedFrame);
             const predictions = await predict(capturedFrame)
             await drawFrameWithBoundingBoxes({ image: capturedFrame, predictions })
             // predictionQueue.push({ image: capturedFrame, predictions });

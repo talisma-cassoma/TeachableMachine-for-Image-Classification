@@ -8,7 +8,7 @@ self.onmessage = async (event) => {
   
   // Use the cocoSsd model to detect objects in the image
   let predictions = await cocoSsdModel.detect(capturedFrame);
-  // console.log(predictions)
+   //console.log(predictions)
    // Loop through the predictions array
    for (let i = 0; i < predictions.length; i++) {
      // Get the class name and score of each detection
@@ -19,7 +19,7 @@ self.onmessage = async (event) => {
      if (className === 'person' && score > 0.5) {
        // Get the bounding box coordinates of the person class in pixels
        const personBbox = predictions[i].bbox;
-       console.log(personBbox)
+       //console.log(personBbox)
  
        // Call identifyPerson function to process the person ROI
        const prediction = await identifyPerson(capturedFrame, personBbox);
@@ -28,6 +28,6 @@ self.onmessage = async (event) => {
        predictions[i].class = prediction;
      }
    }
-  await new Promise(resolve => setTimeout(resolve, 100));
+  //await new Promise(resolve => setTimeout(resolve, 100));
   self.postMessage(predictions)
 }

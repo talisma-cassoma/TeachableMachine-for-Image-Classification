@@ -36,12 +36,28 @@ async function identifyPerson(capturedFrame, personBbox) {
 
   tf.tidy(function () {
     const imageTensor = tf.browser.fromPixels(capturedFrame);
-    const [y, x, width, height] = personBbox;
-    let cropStartPoint = [y, x, 0]
-    let cropSize = [height, width, 3]
-    //debugger
+
+    //console.log('Input Tensor Shape:', imageTensor.shape);
+    const [x, y, width, height] = personBbox;
+
+    // Ensure all coordinates are rounded to integers
+    const roundedX = Math.round(x);
+    const roundedY = Math.round(y);
+
+    const cropStartPoint = [Math.abs(roundedY), Math.abs(roundedX), 0];
+
+    // Ensure all dimensions are rounded to integers
+    const roundedWidth = Math.round(width);
+    const roundedHeight = Math.round(height);
+
+    const cropSize = [
+      (roundedY + roundedHeight) > 150 ? Math.abs(150 - roundedY) : Math.abs(roundedHeight),
+      (roundedX + roundedWidth) > 300 ? Math.abs(300 - roundedX) : Math.abs(roundedWidth),
+      3
+    ];
+
     let croppedTensor = tf.slice(imageTensor, cropStartPoint, cropSize);
-    let resizedTensor = tf.image.resizeBilinear(croppedTensor, [MOBILE_NET_INPUT_WIDTH, MOBILE_NET_INPUT_HEIGHT], true).toInt()
+    let resizedTensor = tf.image.resizeBilinear(croppedTensor, [MOBILE_NET_INPUT_WIDTH, MOBILE_NET_INPUT_HEIGHT], true)
     const imageFeatures = mobilenetModel.predict(resizedTensor.expandDims());
     const predictions = predictionModel.predict(imageFeatures).squeeze();
     highestIndex = predictions.argMax().arraySync();
