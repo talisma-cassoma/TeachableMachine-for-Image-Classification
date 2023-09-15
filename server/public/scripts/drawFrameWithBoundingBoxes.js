@@ -28,10 +28,10 @@ export async function drawFrameWithBoundingBoxes(frame) {
     let text = `${className}: ${Math.floor(prediction.score * 100)}% confidence`;
 
     drawSquareOnCanvas(
-      bbox[0],
-      bbox[1],
-      { width: bbox[2], height: bbox[3] },
-      'red',
+      bbox[0], 
+      bbox[1], 
+      { width: bbox[2], height: bbox[3] }, 
+      'red', 
       text
     );
 
