@@ -17,6 +17,3 @@ a **Web App** for fast train a neural network based on tensorflowjs, have fun ;)
     - [ ] save the instant the class was detected (update in DB)
 - [x] a UI based on the teachable machine
 
-<p align="center">
-<img src="./public/assets/predicting.png">
-</p>
