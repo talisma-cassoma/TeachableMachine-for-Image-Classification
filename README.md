@@ -15,6 +15,7 @@ The training task allows you to build and train a custom model for classificatio
 - **Model Compilation**: The model is compiled with the Adam optimizer and an appropriate loss function based on the number of classes.
 - **Training Progress**: During training, progress logs are displayed, providing insights into each epoch's performance.
 - **Live Predictions**: Once the model is trained, it can make live predictions on the webcam feed.
+- **Download Trained Model**: You have the option to download the trained model locally on the server for later use.
 
 <img src="server/public/assets/train.png" alt="Training page" width="50%" height="50%">
 
