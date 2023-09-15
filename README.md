@@ -1,12 +1,13 @@
-# Teachable Machine Project
+# Teachable Machine
 
-<img src="./sever/public/assets/favicon.png" alt="app logo" width="600" height="400">
+<img src="server/public/assets/favicon.svg" alt="app logo" width="50" height="50">
 
 Teachable Machine is a web application that enables real-time object detection and classification using TensorFlow.js. This project consists of two main tasks: **training** and **prediction**.
 
 ## Features
 
 ### Training Task
+
 The training task allows you to build and train a custom model for classification using your webcam as the data source. Here are some key features:
 
 - **Model Architecture**: The training process involves building a sequential model with a dense layer and a softmax activation function.
@@ -15,9 +16,10 @@ The training task allows you to build and train a custom model for classificatio
 - **Training Progress**: During training, progress logs are displayed, providing insights into each epoch's performance.
 - **Live Predictions**: Once the model is trained, it can make live predictions on the webcam feed.
 
-<img src="./sever/public/assets/train.gif" alt="Training" width="600" height="400">
+<img src="server/public/assets/train.png" alt="Training page" width="50%" height="50%">
 
 ### Prediction Task
+
 The prediction task involves real-time object detection and classification. Here are some key features:
 
 - **Object Detection**: The app uses a pre-trained Coco-SSD model for object detection on the live video stream.
@@ -37,7 +39,8 @@ To simplify the setup process for your clients, I have created a Docker image na
 ```bash
 docker run -p 3000:3000 talisma/teachable-machine
 ```
-This command will pull the image from Docker Hub and run it as a container, making the application accessible at http://localhost:3000.
+
+This command will pull the image from Docker Hub and run it as a container, making the application accessible at <http://localhost:3000>.
 
 ## Debugging Branch
 
@@ -48,4 +51,5 @@ To switch to the debugging branch, use the following command:
 ```bash
 git checkout debugging
 ```
+
 For additional details and customization options, refer to the code files provided in this project.
