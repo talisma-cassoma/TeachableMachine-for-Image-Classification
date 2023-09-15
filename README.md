@@ -24,7 +24,7 @@ The prediction task involves real-time object detection and classification. Here
 - **Classification**: Additionally, it employs a custom-trained model for classifying detected objects.
 - **Real-time Rendering**: Detected objects and their predictions are displayed in real-time on an HTML canvas element.
 
-<img src="./sever/public/assets/predictions.gif" alt="Predictions" width="600" height="400">
+<img src="server/public/assets/FIFO_without_web_workers.gif" alt="Predictions gif" width="50%" height="50%">
 
 ## Setting Up the Project
 
