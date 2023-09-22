@@ -10,7 +10,6 @@ import { Camera } from "./camera.js";
 import { loadPredictionModel, cocoSsdModel } from './predictionsFunctions.js'
 import drawFrameWithBoundingBoxes from './drawFrameWithBoundingBoxes.js'
 
-const monWorker = new Worker('./scripts/worker.js', { type: 'module' });
 // Variables to store model and prediction data
 const maxPredictionQueueLength = 20;
 const predictionQueue = [];
@@ -34,11 +33,12 @@ const PredictionModule = {
             const capturedFrame = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
 
             const predictions = await cocoSsdModel.detect(capturedFrame);
-            predictionQueue.push({ image: capturedFrame, predictions });
+            await drawFrameWithBoundingBoxes({ image: capturedFrame, predictions })
+            //predictionQueue.push({ image: capturedFrame, predictions });
 
-            if (predictionQueue.length >= maxPredictionQueueLength) {
-                await processPredictionFrames();
-            }
+            // if (predictionQueue.length >= maxPredictionQueueLength) {
+            //     await processPredictionFrames();
+            // }
 
             requestAnimationFrame(PredictionModule.startPredictionLoop);
 
