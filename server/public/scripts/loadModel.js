@@ -33,12 +33,12 @@ const PredictionModule = {
             const capturedFrame = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
 
             const predictions = await cocoSsdModel.detect(capturedFrame);
-            await drawFrameWithBoundingBoxes({ image: capturedFrame, predictions })
-            //predictionQueue.push({ image: capturedFrame, predictions });
+            //await drawFrameWithBoundingBoxes({ image: capturedFrame, predictions })
+            predictionQueue.push({ image: capturedFrame, predictions });
 
-            // if (predictionQueue.length >= maxPredictionQueueLength) {
-            //     await processPredictionFrames();
-            // }
+            if (predictionQueue.length >= maxPredictionQueueLength) {
+                await processPredictionFrames();
+            }
 
             requestAnimationFrame(PredictionModule.startPredictionLoop);
 
