@@ -36,12 +36,7 @@ a {
   width: fit-content;
   height: fit-content;
 }
-section.videoPlay{
-  position: relative;
-  width: fit-content;
-  padding: 0;
-  margin: 0;
-}
+
 .icon {
   display: flex;
   border-radius: 50%;

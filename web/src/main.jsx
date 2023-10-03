@@ -5,7 +5,7 @@ import './main.css';
 import usersLogo from '../src/assets/usersLogo.svg'
 import { Camera } from './components/Camera';
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <div className='container'>
       <main>
@@ -18,7 +18,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
       </main>
       <aside>
         <section className='predictions'>
-          <img src={usersLogo} alt="user logo" />
+          {/* <img src={usersLogo} alt="user logo" /> */}
           <p>predictions</p>
         </section>
         <section className='predictions'>

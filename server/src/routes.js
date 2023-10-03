@@ -12,9 +12,11 @@ const __dirname = path.dirname(__filename);
 
 /** Require multer */
 import multer from "multer"
+let localStorageDir = ''
+
 const storage = multer.diskStorage({
     destination: function (request, file, cb) {
-        cb(null, 'public/assets/uploads/')
+        cb(null, localStorageDir)
     },
     filename: function (request, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
@@ -30,9 +32,22 @@ routes.post('/upload',
         { name: 'model.weights.bin', maxCount: 1 }
     ]),
     (request, response) => {
+        localStorageDir = 'public/assets/uploads/'
         // request.body contains the text fields
         // request.files contains the file fields
         // Do something with the files and the body
+        console.log(request.fieldname, request.body, request.files)
+        response.send('Files uploaded to server')
+    })
+// Define an express route with multer middleware
+routes.post('/upload/model/cocossd',
+    upload.fields([
+        { name: 'model.json', maxCount: 1 },
+        { name: 'model.weights.bin', maxCount: 1 }
+    ]),
+    (request, response) => {
+        localStorageDir = 'public/assets/uploads/models/cocossd'
+        //show files logs 
         console.log(request.fieldname, request.body, request.files)
         response.send('Files uploaded to server')
     })
@@ -49,11 +64,11 @@ routes.get('/overview/train', (resquest, response) => {
     return response.sendFile(__dirname + "/views/overview-train.html")
 })
 
- routes.post('/train/labels', async (request, response) => {
+routes.post('/train/labels', async (request, response) => {
     const labels = await Labels.save(request.body)
     console.log(request.body)
     return response.status(201).send();
- })
+})
 
 routes.get('/train/labels', async (request, response) => {
     const labels = await Labels.read()
