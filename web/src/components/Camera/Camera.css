@@ -39,3 +39,12 @@ canvas {
   width: var(--viedoWidth);
   height: var(--viedoHeight);
 }
+
+.camera.icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  width: 4em;
+  height: 4em;
+}
