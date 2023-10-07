@@ -132,6 +132,7 @@ button {
 .imagesCollected {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .numberOfImagesCollected {
@@ -165,6 +166,8 @@ section {
 
 .block3 {
   grid-area: 2 / 1 / 3 / 2;
+  overflow-y: scroll;
+  height: 30em;
 }
 
 .block4 {

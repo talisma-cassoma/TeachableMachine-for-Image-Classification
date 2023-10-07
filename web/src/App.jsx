@@ -37,16 +37,16 @@ export function App() {
       </section>
       <main className="block3">
         {
-          classLabels.map(classLabel => { 
-            return <ClasslabelBox key={Math.random()} classLabelName={classLabel}/> })
+          classLabels.map((classLabel, index) => { 
+            return <ClasslabelBox key={index} index={index} classLabelName={classLabel}/> })
         }
       </main>
       <aside>
         <Camera />
-        {
-          classLabels.map(classLabel => { 
-            return <PredictionsBar  key={Math.random()}  classLabelName={classLabel} /> })
-        }
+        {/* {
+          classLabels.map((classLabel, index) => { 
+            return <PredictionsBar  key={index}  classLabelName={classLabel} /> })
+        } */}
       </aside>
     </main>)
 }
