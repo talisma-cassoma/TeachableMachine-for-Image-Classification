@@ -1,11 +1,11 @@
 import imageIcon from '../assets/imageIcon.svg'
 import imagesCollectedIcon from '../assets/imagesCollectedIcon.svg'
 
-export function Classlabel(prop){
+export function ClasslabelBox(prop){
   return(
     <article className="classObject">
     <div className="header">
-      <span>{prop.className}</span>
+      <span>{prop.classLabelName}</span>
       <img src={imageIcon} alt="" />
     </div>
     <div className="body">
