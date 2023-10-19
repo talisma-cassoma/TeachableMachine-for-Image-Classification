@@ -5,7 +5,7 @@ export function Header() {
   return (
     <>
       <section className="block1">
-        <button className="add-class" onClick={add}>
+        <button className="add-class">
           <img src={addClassIcon} alt="" /> Add a class</button>
       </section>
       <section className="block2">

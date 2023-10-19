@@ -1,8 +1,10 @@
 import imageIcon from '../assets/imageIcon.svg'
 import imagesCollectedIcon from '../assets/imagesCollectedIcon.svg'
-import gatherDataForClass from "../gatherDataForClass";
+import { gatherDataForClass } from "../gatherDataForClass.js";
 
 export function ClasslabelBox(prop){
+
+  
   return(
     <article className="classObject">
     <div className="header">

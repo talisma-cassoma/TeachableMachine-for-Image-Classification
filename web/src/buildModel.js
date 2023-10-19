@@ -1,12 +1,30 @@
 import * as tf from "@tensorflow/tfjs";
 
 const classLabels = ['folha1', 'folah2', 'folha3'];
-let model= undefined;
+let model = undefined;
+let mobilenetModel = undefined;
 let trainingInputs = [];
 let trainingOutputs = [];
 
+async function loadMobileNet() {
+  console.log("transfer learning")
+  const modelURL =
+    'http://localhost:5173/mobilenet/model.json';
+  const modelLocalStorageKey = 'mobilenetModel-v3';
 
-export async function buildModel() {
+  try {
+    mobilenetModel = await tf.loadGraphModel('localstorage://' + modelLocalStorageKey);
+   
+    await mobilenetModel.save('localstorage://' + modelLocalStorageKey);
+  } catch (error) {
+    console.log("Downloading mobilenetModel...");
+    mobilenetModel = await tf.loadGraphModel(modelURL);
+    console.log('mobilenetModel v3 loaded successfully!')
+    // Save the model to local storage
+    // await mobilenetModel.save('localstorage://' + modelLocalStorageKey);
+  }
+}
+async function buildModel() {
   model = tf.sequential();
   model.add(tf.layers.dense({ inputShape: [1024], units: 128, activation: 'relu' }));
   model.add(tf.layers.dense({ units: classLabels.length, activation: 'softmax' }));
@@ -23,6 +41,17 @@ export async function buildModel() {
     // As this is a classification problem you can record accuracy in the logs too!
     metrics: ['accuracy']
   });
+  
   console.log(model);
+  //transfer leaaning
+  loadMobileNet()
   return model;
+}
+
+export {
+  buildModel,
+  model,
+  mobilenetModel,
+  trainingInputs,
+  trainingOutputs
 }
