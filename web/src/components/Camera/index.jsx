@@ -2,8 +2,9 @@ import './Camera.css'
 import cameralogo from '../../assets/camera.svg'
 import trainLogo from '../../assets/startTrain.svg'
 import trainButtonLogo from '../../assets/trainButton.svg'
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useContext } from 'react';
 import Webcam from "react-webcam";
+import { CapturedFrameContext } from '../../hooks/capturedFrameContext'
 
 import { predict } from '../../predictFrame'
 
@@ -11,6 +12,7 @@ import { predict } from '../../predictFrame'
 export function Camera() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
+  const { setCapturedFrame } = useContext(CapturedFrameContext);
 
   useEffect(() => {
     let animationFrameId;
@@ -33,6 +35,7 @@ export function Camera() {
         const ctx = canvasRef.current.getContext("2d", { willReadFrequently: true });
         ctx.drawImage(videoElement, 0, 0, videoWidth, videoHeight);
         const capturedFrame = ctx.getImageData(0, 0, videoWidth, videoHeight);
+        setCapturedFrame(capturedFrame)
         const {x, y, width, height, color, text} = predict(capturedFrame);
 
         ctx.clearRect(0, 0, videoWidth, videoHeight);
@@ -48,7 +51,7 @@ export function Camera() {
         ctx.font = '8px Arial';
         ctx.fillText(text, x + 5, y + 10);
       }
-
+      
       animationFrameId = requestAnimationFrame(processFrame);
     };
 

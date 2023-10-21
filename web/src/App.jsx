@@ -6,7 +6,7 @@ import downloadIcon from './assets/downloadIcon.svg'
 
 import { Camera } from './components/Camera';
 import { ClasslabelBox } from './components/ClassLabelBox';
-import { classLabelContext } from '../hooks/classLabelContext'
+import { CapturedFrameProvider } from './hooks/capturedFrameContext'
 
 
 export function App() {
@@ -24,7 +24,7 @@ export function App() {
   }
 
   return (
-    <classLabelContext.Provider>     
+       <CapturedFrameProvider>
       <main className='container'>
         <section className="block1">
           <button className="add-class" onClick={addClassLabel}>
@@ -39,7 +39,7 @@ export function App() {
         <main className="block3">
           {
             classLabels.map((classLabel, index) => { 
-              return <ClasslabelBox key={index} index={index} classLabelName={classLabel}/> })
+              return (<ClasslabelBox key={index} index={index} classLabelName={classLabel}/>) })
           }
         </main>
         <aside>
@@ -50,6 +50,6 @@ export function App() {
           } */}
         </aside>
       </main>
-    </classLabelContext.Provider>
+      </CapturedFrameProvider> 
     )
 }

@@ -1,11 +1,22 @@
+import { useContext } from 'react';
 import imageIcon from '../assets/imageIcon.svg'
 import imagesCollectedIcon from '../assets/imagesCollectedIcon.svg'
 import { gatherDataForClass } from "../gatherDataForClass.js";
+import { CapturedFrameContext } from '../hooks/capturedFrameContext';
 
 export function ClasslabelBox(prop){
 
-  
-  return(
+  const { capturedFrame } = useContext(CapturedFrameContext);
+
+  const handleMouseDown = (event) => {
+    gatherDataForClass(event, capturedFrame);
+  }
+
+  const handleMouseUp = (event) => {
+    gatherDataForClass(event, capturedFrame);
+  }
+
+  return (
     <article className="classObject">
     <div className="header">
       <span>{prop.classLabelName}</span>
@@ -15,7 +26,8 @@ export function ClasslabelBox(prop){
       <div>hold the button to capure the images for train</div>
       <div className="imagesCollected">
         <div className="icon dataCollector" 
-        onMouseDown={gatherDataForClass} onMouseUp={gatherDataForClass}
+        onMouseDown={handleMouseDown} 
+        onMouseUp={handleMouseUp}
         data-1hot={prop.index} data-name={prop.classLabelName}>
           <img src={imagesCollectedIcon} alt="" />
           <span>webcam</span>
