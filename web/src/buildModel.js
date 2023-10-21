@@ -1,6 +1,6 @@
 import * as tf from "@tensorflow/tfjs";
 
-const classLabels = ['folha1', 'folah2', 'folha3'];
+const ClassLabels = [];
 let model = undefined;
 let mobilenetModel = undefined;
 let trainingInputs = [];
@@ -27,7 +27,7 @@ async function loadMobileNet() {
 async function buildModel() {
   model = tf.sequential();
   model.add(tf.layers.dense({ inputShape: [1024], units: 128, activation: 'relu' }));
-  model.add(tf.layers.dense({ units: classLabels.length, activation: 'softmax' }));
+  model.add(tf.layers.dense({ units: ClassLabels.length, activation: 'softmax' }));
 
   model.summary();
 
@@ -37,21 +37,21 @@ async function buildModel() {
     optimizer: 'adam',
     // Use the correct loss function. If 2 classes of data, must use binaryCrossentropy.
     // Else categoricalCrossentropy is used if more than 2 classes.
-    loss: (classLabels.length === 2) ? 'binaryCrossentropy' : 'categoricalCrossentropy',
+    loss: (ClassLabels.length === 2) ? 'binaryCrossentropy' : 'categoricalCrossentropy',
     // As this is a classification problem you can record accuracy in the logs too!
     metrics: ['accuracy']
   });
   
   console.log(model);
   //transfer leaaning
-  loadMobileNet()
-  return model;
 }
 
 export {
   buildModel,
+  loadMobileNet,
   model,
   mobilenetModel,
   trainingInputs,
-  trainingOutputs
+  trainingOutputs,
+  ClassLabels
 }

@@ -7,7 +7,6 @@ import { mobilenetModel, trainingInputs, trainingOutputs } from './buildModel'
 
 
 const STOP_DATA_GATHER = -1;
-const classLabels = []
 let gatherDataState = STOP_DATA_GATHER;
 let exampleCounts = [];
 
@@ -20,7 +19,7 @@ function dataGatherLoop(newFrame) {
             let normalizedTensorFrame = resizedTensorFrame.div(255);
             return mobilenetModel.predict(normalizedTensorFrame.expandDims()).squeeze();
         });
-        console.log(imageFeatures)
+        // console.log(imageFeatures)
 
         trainingInputs.push(imageFeatures);
         trainingOutputs.push(gatherDataState);
@@ -31,17 +30,17 @@ function dataGatherLoop(newFrame) {
         }
         exampleCounts[gatherDataState]++;
 
-        //console.log())
+        console.log(exampleCounts)
     }
 }
 
 function gatherDataForClass(event, newFrame) {
     const target = event.target.closest('.icon.dataCollector').getAttribute('data-1hot')
     const classNumber = parseInt(target);
-    console.log(target);
+    // console.log(target);
 
     gatherDataState = (gatherDataState === STOP_DATA_GATHER) ? classNumber : STOP_DATA_GATHER;
-    console.log(newFrame)
+    // console.log(newFrame)
     dataGatherLoop(newFrame);
 }
 export {

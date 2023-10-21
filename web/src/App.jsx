@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState , useEffect} from 'react'
 
 import './global.css';
 import addClassIcon from './assets/addClassIcon.svg'
@@ -7,22 +7,30 @@ import downloadIcon from './assets/downloadIcon.svg'
 import { Camera } from './components/Camera';
 import { ClasslabelBox } from './components/ClassLabelBox';
 import { CapturedFrameProvider } from './hooks/capturedFrameContext'
+import { ClassLabels, loadMobileNet } from './buildModel';
+import { trainModel } from './train';
 
-
+loadMobileNet()
 export function App() {
-
   const [newClassLabel, setNewClassLabel] = useState('')
   const [classLabels, setclassLabels] = useState([])
 
   function addClassLabel() {
-    setNewClassLabel(prompt("Please enter a name:", ""));
-    if (newClassLabel == null || newClassLabel == "") {
-        alert("no class added")
+    const label = prompt("Please enter a name:", "");
+    
+    if (label === null || label === "") {
+      alert("no class added");
     } else {
-    setclassLabels([newClassLabel, ...classLabels])
+      setNewClassLabel(label);
     }
   }
-
+  
+  useEffect(() => {
+    if (newClassLabel !== "" && classLabels.indexOf(newClassLabel) === -1) {
+      setclassLabels([...classLabels, newClassLabel]);
+      ClassLabels.push(newClassLabel)
+    }
+  }, [newClassLabel, classLabels]);
   return (
        <CapturedFrameProvider>
       <main className='container'>
@@ -31,7 +39,7 @@ export function App() {
             <img src={addClassIcon} alt="" /> Add a class</button>
         </section>
         <section className="block2">
-          <button id="train">Train model</button>
+          <button id="train" onClick={trainModel}>Train model</button>
           <button id="download">
             <img src={downloadIcon} alt="" /> Download</button>
           <button id="reset">Reset</button>
@@ -44,10 +52,6 @@ export function App() {
         </main>
         <aside>
           <Camera />
-          {/* {
-            classLabels.map((classLabel, index) => { 
-              return <PredictionsBar  key={index}  classLabelName={classLabel} /> })
-          } */}
         </aside>
       </main>
       </CapturedFrameProvider> 
