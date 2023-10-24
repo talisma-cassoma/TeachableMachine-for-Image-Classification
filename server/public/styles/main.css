@@ -84,8 +84,10 @@ button {
 }
 
 .classObject .header {
+    display: grid;
     border-bottom: 1px solid #dedede;
     padding: 1em;
+    gap: 1em;
 }
 
 .classObject .header>* {

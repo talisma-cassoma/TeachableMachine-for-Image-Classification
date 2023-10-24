@@ -4,6 +4,7 @@ let innerHtml = {
     classBox: function (className, classNameIndex) {
         return `
         <div class="header">
+        <input type="file" id="imageInput" accept="image/*" multiple >
         <span>${className}</span>
         <svg id="edit-icon" role="button" tabindex="0" width="19" height="18" viewBox="0 0 19 18" fill="none"
             xmlns="http://www.w3.org/2000/svg" aria-label="Rename class">

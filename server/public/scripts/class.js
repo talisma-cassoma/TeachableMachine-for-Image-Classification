@@ -1,17 +1,73 @@
 import { innerHtml } from "./html.js";
 import getRandomColor from "./randomColors.js";
 import gatherDataForClass from "./gatherDataForClass.js";
-import { classLabels } from "./loadSavedLoadedModel.js";
+import {
+    classLabels,
+    mobilenetModel,
+    trainingInputs,
+    trainingOutputs
+} from "./loadSavedLoadedModel.js";
 
 
 
-
+let classObject ;
 const buttonAddClass = document.querySelector('button.add-class')
 const classes = document.querySelector('section.block3')
 const predictionContainer = document.querySelector('.predictions')
 const predictionBarsProgress = []
 const numberOfImagesCollected = []
 
+async function convertAnsaveTensor(dataCollector, image) {
+    let classNumber = parseInt(dataCollector);
+    let exampleCounts = [];
+    console.log(classNumber)
+
+    let imageFeatures = tf.tidy(function () {
+        let imageAsTensor = tf.browser.fromPixels(image);
+        let resizedTensorFrame = tf.image.resizeBilinear(imageAsTensor, [224,
+            224], true);
+        let normalizedTensorFrame = resizedTensorFrame.div(255);
+        return mobilenetModel.predict(normalizedTensorFrame.expandDims()).squeeze();
+    });
+
+    trainingInputs.push(imageFeatures);
+    trainingOutputs.push(classNumber);
+    // console.log("trainingInputs: ", trainingInputs);
+    // console.log("trainingOutputs: ", trainingOutputs);
+    // Intialize array index element if currently undefined.
+    if (exampleCounts[classNumber] === undefined) {
+        exampleCounts[classNumber] = 0;
+    }
+    exampleCounts[classNumber]++;
+
+    const numberOfImagesCollected = classObject.children[1].children[1].children[1]
+
+    numberOfImagesCollected.innerText = (exampleCounts[classNumber] === undefined) ? 0 : exampleCounts[classNumber]    
+
+}
+
+async function processImages(dataCollector, inputImagesElement) {
+
+    const files = await inputImagesElement.files;
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+
+        reader.onload = async function () {
+            const image = new Image();
+            image.src = reader.result;
+
+            image.onload = async function () {
+
+                // Process the tensor (normalization, resizing)
+                convertAnsaveTensor(dataCollector, image)
+            }
+        }
+
+        reader.readAsDataURL(file);
+    }
+}
 
 const Class = {
     init() {
@@ -24,7 +80,7 @@ const Class = {
             alert("no class added")
         } else {
             //create a html element
-            const classObject = document.createElement('article')
+            classObject = document.createElement('article')
             classObject.innerHTML = innerHtml.classBox(newClassName, classLabels.length)
             classObject.classList.add('classObject')
             classes.appendChild(classObject)
@@ -38,28 +94,33 @@ const Class = {
             //console.log(classLabels)
             //array of nbrs of images colleccted div a each class div  
             numberOfImagesCollected.push(classObject.children[1].children[1].children[1])
-            
+
+            const inputImagesElement = classObject.children[0].children[0]
+            const dataCollector = dataCollectorButton.getAttribute('data-1hot')
+            inputImagesElement.addEventListener("change",
+                () => processImages(dataCollector, inputImagesElement));
+
 
             ////create a progress element in html 
             Class.createLabelPredictionsBar(newClassName)
         }
     },
-    createLabelPredictionsBar(className){
-		const predictionBar = document.createElement('div')
+    createLabelPredictionsBar(className) {
+        const predictionBar = document.createElement('div')
         //fill html
         predictionBar.innerHTML = innerHtml.progressBar(className)
         predictionBar.classList.add('progressBarContainer')
         //save it in html page
         predictionContainer.appendChild(predictionBar)
-        
+
         const progress = predictionBar.children[1].children[0]
         progress.style.backgroundColor = getRandomColor()
         predictionBarsProgress.push(progress)
         //get div.numberOfImagesCollected in html
-	}
+    }
 }
 
 
 
 
-export { Class, classLabels, predictionBarsProgress}
+export { Class, classLabels, predictionBarsProgress }
