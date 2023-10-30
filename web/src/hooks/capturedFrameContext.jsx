@@ -14,5 +14,5 @@ function CapturedFrameProvider({ children }) {
 
 export {
  CapturedFrameContext,
- CapturedFrameProvider
+ CapturedFrameProvider,
 }

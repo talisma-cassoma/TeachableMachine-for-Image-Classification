@@ -6,10 +6,9 @@ import React, { useRef, useEffect, useContext } from 'react';
 import Webcam from "react-webcam";
 import { CapturedFrameContext } from '../../hooks/capturedFrameContext'
 
-import { predict } from '../../predictFrame'
-
 
 export function Camera() {
+
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
   const { setCapturedFrame } = useContext(CapturedFrameContext);
@@ -35,23 +34,14 @@ export function Camera() {
         const ctx = canvasRef.current.getContext("2d", { willReadFrequently: true });
         ctx.drawImage(videoElement, 0, 0, videoWidth, videoHeight);
         const capturedFrame = ctx.getImageData(0, 0, videoWidth, videoHeight);
-        setCapturedFrame(capturedFrame)
-        const {x, y, width, height, color, text} = predict(capturedFrame);
-
+        
+        
         ctx.clearRect(0, 0, videoWidth, videoHeight);
         ctx.putImageData(capturedFrame, 0, 0);
-
-        ctx.beginPath();
-        ctx.rect(x, y, width, height);
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-
-        ctx.fillStyle = color;
-        ctx.font = '8px Arial';
-        ctx.fillText(text, x + 5, y + 10);
+        setCapturedFrame(capturedFrame)
+        //console.log(capturedFrame)
       }
-      
+
       animationFrameId = requestAnimationFrame(processFrame);
     };
 

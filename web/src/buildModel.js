@@ -1,4 +1,5 @@
 import * as tf from "@tensorflow/tfjs";
+tf.backend('webgl')
 
 const ClassLabels = [];
 let model = undefined;
@@ -14,11 +15,17 @@ async function loadMobileNet() {
 
   try {
     mobilenetModel = await tf.loadGraphModel('localstorage://' + modelLocalStorageKey);
-   
+
     await mobilenetModel.save('localstorage://' + modelLocalStorageKey);
   } catch (error) {
     console.log("Downloading mobilenetModel...");
     mobilenetModel = await tf.loadGraphModel(modelURL);
+    // Warm up the model by passing zeros through it once.
+    tf.tidy(function () {
+      let dummyPrediction = mobilenetModel.predict(tf.zeros([1, 224, 224, 3]));
+      console.log(dummyPrediction.shape);
+    });
+
     console.log('mobilenetModel v3 loaded successfully!')
     // Save the model to local storage
     // await mobilenetModel.save('localstorage://' + modelLocalStorageKey);
@@ -41,7 +48,7 @@ async function buildModel() {
     // As this is a classification problem you can record accuracy in the logs too!
     metrics: ['accuracy']
   });
-  
+
   console.log(model);
   //transfer leaaning
 }
