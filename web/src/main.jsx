@@ -5,8 +5,8 @@ import { App } from './App'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-     <CapturedFrameProvider>
-    <App />
-     </CapturedFrameProvider>
+    <CapturedFrameProvider>
+      <App />
+    </CapturedFrameProvider>
   </React.StrictMode>,
 )

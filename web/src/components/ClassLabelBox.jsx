@@ -2,20 +2,19 @@ import { useState, useContext, useEffect } from 'react';
 import imageIcon from '../assets/imageIcon.svg'
 import imagesCollectedIcon from '../assets/imagesCollectedIcon.svg'
 import { gatherDataForClass } from "../gatherDataForClass.js";
-import { CapturedFrameContext } from '../hooks/capturedFrameContext';
+import { CapturedFrameContext, CapturedFrameProvider } from '../hooks/capturedFrameContext';
 
 
 export function ClasslabelBox(prop) {
 
-  const { capturedFrame } = useContext(CapturedFrameContext);
+  const { capturedFrame, predictions } = useContext(CapturedFrameContext);
   const [numberOfImagesCollected, setNumberOfImagesCollected] = useState(0);
-  
-  const [prediction, setPrediction] = useState(prop.prediction);
+  const [ prediction, setPrediction]= useState(NaN) 
 
-  useEffect(() => {
-    console.log(prop.prediction); // 
-    setPrediction(prop.prediction);
-  }, [prop.prediction]);
+   useEffect(() => {
+    setPrediction(Math.floor(predictions[prop.index] * 100 ))
+    ///console.log(predictions)
+   }, [predictions])
 
   const handleMouseDown = (event) => {
     //
@@ -29,41 +28,41 @@ export function ClasslabelBox(prop) {
   }
 
   return (
-    <article className="classObject">
-      <div className="header">
-        <span>{prop.classLabelName}</span>
-        <img src={imageIcon} alt="" />
-      </div>
-      <div className="body">
-        <div>hold the button to capture the images for training</div>
-        <div className="imagesCollected">
-          <div className="icon dataCollector"
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
-            data-1hot={prop.index} data-name={prop.classLabelName}
-          >
-            <img src={imagesCollectedIcon} alt="" />
-            <span>webcam</span>
-          </div>
-          <div className="progessBar">
-            {isNaN(prop.prediction)? (
-              <div className="progress" style={{ backgroundColor: 'palegreen' }}>
-                --no prediction--
-              </div>
-            ) : (
-              <div
-                className="progress"
-                style={{ backgroundColor: 'palegreen', width: `${prediction * 100}px` }}
-              >
-                {prediction * 100}%
-              </div>
-            )}
-          </div>
-          <div className="numberOfImagesCollected">
-            {numberOfImagesCollected}
+      <article className="classObject">
+        <div className="header">
+          <span>{prop.classLabelName}</span>
+          <img src={imageIcon} alt="" />
+        </div>
+        <div className="body">
+          <div>hold the button to capture the images for training</div>
+          <div className="imagesCollected">
+            <div className="icon dataCollector"
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
+              data-1hot={prop.index} data-name={prop.classLabelName}
+            >
+              <img src={imagesCollectedIcon} alt="" />
+              <span>webcam</span>
+            </div>
+            <div className="progessBar">
+              {isNaN(prediction) ? (
+                <div className="progress" style={{ backgroundColor: 'palegreen' }}>
+                  --no prediction--
+                </div>
+              ) : (
+                <div
+                  className="progress"
+                  style={{ backgroundColor: 'palegreen', width: `${prediction}px` }}
+                >
+                  {prediction}%
+                </div>
+              )}
+            </div>
+            <div className="numberOfImagesCollected">
+              {numberOfImagesCollected}
+            </div>
           </div>
         </div>
-      </div>
-    </article>
+      </article>
   )
 }
