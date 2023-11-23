@@ -18,10 +18,10 @@ const predictionBarsProgress = []
 const numberOfImagesCollected = []
 
 async function convertAnsaveTensor(dataCollector, image) {
+    
     let classNumber = parseInt(dataCollector);
-    let exampleCounts = [];
-    console.log(classNumber)
-
+    console.log(classNumber);
+ 
     let imageFeatures = tf.tidy(function () {
         let imageAsTensor = tf.browser.fromPixels(image);
         let resizedTensorFrame = tf.image.resizeBilinear(imageAsTensor, [224,
@@ -35,20 +35,12 @@ async function convertAnsaveTensor(dataCollector, image) {
     // console.log("trainingInputs: ", trainingInputs);
     // console.log("trainingOutputs: ", trainingOutputs);
     // Intialize array index element if currently undefined.
-    if (exampleCounts[classNumber] === undefined) {
-        exampleCounts[classNumber] = 0;
-    }
-    exampleCounts[classNumber]++;
-
-    const numberOfImagesCollected = classObject.children[1].children[1].children[1]
-
-    numberOfImagesCollected.innerText = (exampleCounts[classNumber] === undefined) ? 0 : exampleCounts[classNumber]    
-
 }
 
-async function processImages(dataCollector, inputImagesElement) {
-
+async function processImages(collectedData, inputImagesElement) {
+    const {dataCollector, collectedImages}= collectedData;
     const files = await inputImagesElement.files;
+    collectedImages.innerText = files.length ;  
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
@@ -87,18 +79,19 @@ const Class = {
 
             //get div.icon.dataCollector on html
             let dataCollectorButton = classObject.children[1].children[1].children[0]
+            let collectedImages= classObject.children[1].children[1].children[1]
             dataCollectorButton.addEventListener("mousedown", gatherDataForClass);
             dataCollectorButton.addEventListener("mouseup", gatherDataForClass);
             // Populate the human readable names for classes.
             classLabels.push(dataCollectorButton.getAttribute("data-name"));
             //console.log(classLabels)
             //array of nbrs of images colleccted div a each class div  
-            numberOfImagesCollected.push(classObject.children[1].children[1].children[1])
+            numberOfImagesCollected.push(collectedImages)
 
             const inputImagesElement = classObject.children[0].children[0]
             const dataCollector = dataCollectorButton.getAttribute('data-1hot')
             inputImagesElement.addEventListener("change",
-                () => processImages(dataCollector, inputImagesElement));
+                () => processImages({dataCollector, collectedImages}, inputImagesElement));
 
 
             ////create a progress element in html 

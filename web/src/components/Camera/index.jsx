@@ -2,57 +2,60 @@ import './Camera.css'
 import cameralogo from '../../assets/camera.svg'
 import trainLogo from '../../assets/startTrain.svg'
 import trainButtonLogo from '../../assets/trainButton.svg'
-import React, { useRef, useEffect, useContext } from 'react';
-import Webcam from "react-webcam";
-import { CapturedFrameContext } from '../../hooks/capturedFrameContext'
-
+import React, { useRef, useEffect, useContext, useMemo } from 'react';
+import { socket } from '../../utils/websocket';
+import { CapturedFrameContext } from '../../hooks/capturedFrameContext';
 
 export function Camera() {
 
+  const { capturedFrame, predictions } = useContext(CapturedFrameContext);
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
-  const { setCapturedFrame } = useContext(CapturedFrameContext);
+  const videoRef = useRef(null)
 
   useEffect(() => {
-    let animationFrameId;
+    startVideo();
+    if (
+      typeof webcamRef.current !== 'undefined' &&
+      webcamRef.current !== null
+    ) {
 
-    const processFrame = () => {
-      if (
-        typeof webcamRef.current !== "undefined" &&
-        webcamRef.current !== null &&
-        webcamRef.current.video.readyState === 4
-      ) {
-        const videoElement = webcamRef.current.video;
-        const videoWidth = videoElement.videoWidth;
-        const videoHeight = videoElement.videoHeight;
+      const videoWidth = 640;
+      const videoHeight = 480;
 
-        webcamRef.current.video.width = videoWidth;
-        webcamRef.current.video.height = videoHeight;
-        canvasRef.current.width = videoWidth;
-        canvasRef.current.height = videoHeight;
+      webcamRef.current.width = videoWidth;
+      webcamRef.current.height = videoHeight;
 
-        const ctx = canvasRef.current.getContext("2d", { willReadFrequently: true });
-        ctx.drawImage(videoElement, 0, 0, videoWidth, videoHeight);
-        const capturedFrame = ctx.getImageData(0, 0, videoWidth, videoHeight);
-        
-        
-        ctx.clearRect(0, 0, videoWidth, videoHeight);
-        ctx.putImageData(capturedFrame, 0, 0);
-        setCapturedFrame(capturedFrame)
-        //console.log(capturedFrame)
-      }
+      canvasRef.current.width = videoWidth;
+      canvasRef.current.height = videoHeight;
 
-      animationFrameId = requestAnimationFrame(processFrame);
-    };
+      const ctx = canvasRef.current.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(webcamRef.current, 0, 0, videoWidth, videoHeight);
 
-    processFrame(); // Start the animation loop
+      ctx.clearRect(0, 0, videoWidth, videoHeight);
+      setInterval(() => {
+        socket.emit('camera stream',
+          canvasRef.current.toDataURL('image/webp'));
+      }, 120);
+    }
+  }, [])
+  useMemo(() => {
 
-    return () => cancelAnimationFrame(animationFrameId); // Cleanup on component unmount
-  }, []);
+  }, [capturedFrame])
+  // OPEN YOU FACE WEBCAM
+  const startVideo = () => {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((currentStream) => {
+        webcamRef.current.srcObject = currentStream
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
 
   return (
     <section className='videoPlay'>
-      <Webcam id="webcam" ref={webcamRef} autoPlay playsInline muted />
+      <video crossOrigin="anonymous" ref={webcamRef} autoPlay></video>
       <canvas ref={canvasRef}></canvas>
       <div className="navBar">
         <div id="enableCam" className="camera icon" >

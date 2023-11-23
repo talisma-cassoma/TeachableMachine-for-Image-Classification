@@ -1,8 +1,8 @@
 import { useState, useContext, useEffect } from 'react';
 import imageIcon from '../assets/imageIcon.svg'
 import imagesCollectedIcon from '../assets/imagesCollectedIcon.svg'
-import { gatherDataForClass } from "../gatherDataForClass.js";
-import { CapturedFrameContext, CapturedFrameProvider } from '../hooks/capturedFrameContext';
+import { gatherDataForClass } from "../utils/gatherDataForClass.js";
+import { CapturedFrameContext } from '../hooks/capturedFrameContext';
 
 
 export function ClasslabelBox(prop) {
@@ -12,8 +12,8 @@ export function ClasslabelBox(prop) {
   const [ prediction, setPrediction]= useState(NaN) 
 
    useEffect(() => {
-    setPrediction(Math.floor(predictions[prop.index] * 100 ))
-    ///console.log(predictions)
+    setPrediction(Math.floor(predictions[prop.index] * 100))
+     console.log(predictions[prop.index])
    }, [predictions])
 
   const handleMouseDown = (event) => {

@@ -1,19 +1,18 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext,  useMemo } from 'react'
 import './global.css';
 import addClassIcon from './assets/addClassIcon.svg'
 import downloadIcon from './assets/downloadIcon.svg'
 import { Camera } from './components/Camera';
 import { ClasslabelBox } from './components/ClassLabelBox';
-import { CapturedFrameProvider, CapturedFrameContext } from './hooks/capturedFrameContext'
-import { IAWorker } from './predictFrame';
+import { IAWorker } from './utils/predictFrame';
+
 
 IAWorker.postMessage(['load mobilenet', 'IA'])
 
 export function App() {
   const [newClassLabel, setNewClassLabel] = useState('')
   const [classLabels, setclassLabels] = useState([])
-  const { capturedFrame, predictions, setPredictions } = useContext(CapturedFrameContext);
-
+ 
   function addClassLabel() {
     const label = prompt("Please enter a name:", "");
 
@@ -24,7 +23,7 @@ export function App() {
     }
   }
 
-  useEffect(() => {
+  useMemo(() => {
     if (newClassLabel !== "" && classLabels.indexOf(newClassLabel) === -1) {
       setclassLabels([...classLabels, newClassLabel]);
       IAWorker.postMessage(['add new class', newClassLabel])
@@ -53,7 +52,6 @@ export function App() {
                 key={index}
                 index={index}
                 classLabelName={classLabel}
-                //prediction={Math.floor(predictions[index])} // Update here
               />
             )
           })

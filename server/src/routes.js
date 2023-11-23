@@ -60,7 +60,7 @@ routes.get('/train', (resquest, response) => {
     return response.sendFile(__dirname + "/views/train.html")
 })
 
-routes.get('/overview/train', (resquest, response) => {
+routes.get('/train/overview', (resquest, response) => {
     return response.sendFile(__dirname + "/views/overview-train.html")
 })
 

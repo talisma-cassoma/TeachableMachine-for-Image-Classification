@@ -4,8 +4,8 @@ import {
   mobilenetModel,
   trainingInputs,
   trainingOutputs
-} from './buildModel';
-import { trainModel } from './train';
+} from '../buildModel';
+import { trainModel } from '../train';
 import * as tf from '@tensorflow/tfjs'
 
 const STOP_DATA_GATHER = -1;
@@ -58,4 +58,3 @@ self.onmessage = async (event) => {
   }
 
 }
-
