@@ -48,3 +48,7 @@ canvas {
   width: 4em;
   height: 4em;
 }
+.liveStream{
+  width: var(--viedoWidth);
+  height: var(--viedoHeight);
+}

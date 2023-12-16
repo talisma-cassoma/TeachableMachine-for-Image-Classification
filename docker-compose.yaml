@@ -1,0 +1,9 @@
+version: '3'
+
+services: 
+  camera-streamer-app:
+    build: .
+    ports:
+      - "5555:5555"
+    volume:
+      - ./:/usr/src/app/

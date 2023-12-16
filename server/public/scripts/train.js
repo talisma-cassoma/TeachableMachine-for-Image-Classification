@@ -4,7 +4,7 @@ import {
 	loadMobileNetFeatureModel,
 	trainingInputs,
 	trainingOutputs,
-	mobilenetModel,
+	mobilenetBase,
 	statusElement,
 } from "./loadSavedLoadedModel.js"
 
@@ -16,6 +16,7 @@ const RESET_BUTTON = document.getElementById('reset');
 const DOWNLOAD_BUTTON = document.getElementById('download');
 
 let model = undefined
+let combinedModel = undefined;
 let predict = false;
 
 function predictLoop() {
@@ -25,20 +26,20 @@ function predictLoop() {
 			let resizedTensorFrame = tf.image.resizeBilinear(videoFrameAsTensor, [Camera.MOBILE_NET_INPUT_HEIGHT,
 			Camera.MOBILE_NET_INPUT_WIDTH], true);
 
-			let imageFeatures =  mobilenetModel.predict(resizedTensorFrame.expandDims());
+			let imageFeatures = mobilenetBase.predict(resizedTensorFrame.expandDims());
 			let prediction = model.predict(imageFeatures).squeeze();
 
 			let highestIndex = prediction.argMax().arraySync();
 			let predictionArray = prediction.arraySync();
-			
+
 
 			for (let i = 0; i < classLabels.length; i++) {
 
-				let classPredictionConfidence = Math.floor(predictionArray[i] * 100) 
-				predictionBarsProgress[i].style.width = `${classPredictionConfidence}%` 
+				let classPredictionConfidence = Math.floor(predictionArray[i] * 100)
+				predictionBarsProgress[i].style.width = `${classPredictionConfidence}%`
 				predictionBarsProgress[i].innerText = classPredictionConfidence + '%'
 			}
-		
+
 		});
 
 		window.requestAnimationFrame(predictLoop);
@@ -51,7 +52,7 @@ function logProgress(epoch, logs) {
 
 async function trainAndPredict() {
 	predict = false;
-	
+
 	tf.util.shuffleCombo(trainingInputs, trainingOutputs);
 	let outputsAsTensor = tf.tensor1d(trainingOutputs, 'int32');
 	let oneHotOutputs = tf.oneHot(outputsAsTensor, classLabels.length);
@@ -71,9 +72,10 @@ async function trainAndPredict() {
 
 
 const Train = {
+
 	buildModel() {
 		model = tf.sequential();
-		model.add(tf.layers.dense({ inputShape: [1024], units: 128, activation: 'relu' }));
+		model.add(tf.layers.dense({ inputShape: [1280], units: 64, activation: 'relu' }));
 		model.add(tf.layers.dense({ units: classLabels.length, activation: 'softmax' }));
 
 		model.summary();
@@ -89,11 +91,25 @@ const Train = {
 			metrics: ['accuracy']
 		});
 	},
+	buildCombinedModel() {
+
+		combinedModel = tf.sequential();
+		combinedModel.add(mobilenetBase)
+		combinedModel.add(model)
+
+		combinedModel.compile({
+			optimizer: 'adam',
+			loss: (classLabels.length === 2) ? 'binaryCrossentropy' : 'categoricalCrossentropy',
+			// As this is a classification problem you can record accuracy in the logs too!
+			metrics: ['accuracy']
+		})
+	},
 	predict() {
 		trainAndPredict()
 	},
 	init() {
 		Train.buildModel()
+		Train.buildCombinedModel()
 		Train.predict()
 
 	},
@@ -113,7 +129,7 @@ const Train = {
 		//stop prediction lopp
 		predict = false;
 		//start download
-		await downloadModel(model);
+		await downloadModel(combinedModel);
 
 	}
 }

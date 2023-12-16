@@ -1,5 +1,5 @@
 import { Camera } from "./camera.js"
-import { mobilenetModel, loadMobileNetFeatureModel } from "./loadSavedLoadedModel.js";
+import { loadMobileNetFeatureModel } from "./loadSavedLoadedModel.js";
 import { Class, predictionBarsProgress } from "./class.js";
 
 let model = undefined
@@ -29,23 +29,22 @@ const Prediction = {
 
 				tf.tidy(function predictLoop() {
 					let videoFrameAsTensor = tf.browser.fromPixels(Camera.VIDEO).div(255);
-					let resizedTensorFrame = tf.image.resizeBilinear(videoFrameAsTensor, [Camera.MOBILE_NET_INPUT_HEIGHT,
-					Camera.MOBILE_NET_INPUT_WIDTH], true);
-
-					let imageFeatures = mobilenetModel.predict(resizedTensorFrame.expandDims());
-					let predict = model.predict(imageFeatures).squeeze();
-
+					let resizedTensorFrame = tf.image.resizeBilinear(videoFrameAsTensor, [Camera.MOBILE_NET_INPUT_HEIGHT, Camera.MOBILE_NET_INPUT_WIDTH], true);
+			
+					// Add batch dimension
+					resizedTensorFrame = resizedTensorFrame.expandDims(0);
+			
+					let predict = model.predict(Camera.VIDEO);
 					let predictionArray = predict.arraySync();
-
-
+			
 					for (let i = 0; i < labels.length; i++) {
-
-						let classPredictionConfidence = Math.floor(predictionArray[i] * 100)
-						predictionBarsProgress[i].style.width = `${classPredictionConfidence}%`
-						predictionBarsProgress[i].innerText = classPredictionConfidence + '%'
+							let classPredictionConfidence = Math.floor(predictionArray[0][i] * 100);
+							predictionBarsProgress[i].style.width = `${classPredictionConfidence}%`;
+							predictionBarsProgress[i].innerText = classPredictionConfidence + '%';
 					}
-				});
-
+			});
+			
+						
 				window.requestAnimationFrame(predictLoop);
 
 			} else {
@@ -56,13 +55,12 @@ const Prediction = {
 	async loadModel() {
 
 		model = await tf.loadLayersModel('http://localhost:3000/assets/uploads/model.json');
-
+		
 		model.summary()
+		console.log('the model is ready for use');
 
 		await Prediction.setPredictionsBars()
 		
-		loadMobileNetFeatureModel()
-
 	}
 }
 

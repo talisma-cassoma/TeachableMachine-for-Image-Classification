@@ -2,16 +2,16 @@ import './Camera.css'
 import cameralogo from '../../assets/camera.svg'
 import trainLogo from '../../assets/startTrain.svg'
 import trainButtonLogo from '../../assets/trainButton.svg'
-import React, { useRef, useEffect, useContext, useMemo } from 'react';
+import React, { useRef, useEffect, useContext, useMemo, useState } from 'react';
 import { socket } from '../../utils/websocket';
 import { CapturedFrameContext } from '../../hooks/capturedFrameContext';
 
 export function Camera() {
 
-  const { capturedFrame, predictions } = useContext(CapturedFrameContext);
+  const { setCapturedFrame, capturedFrame, predictions } = useContext(CapturedFrameContext);
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
-  const videoRef = useRef(null)
+  const [image, setImage] = useState()
 
   useEffect(() => {
     startVideo();
@@ -39,24 +39,28 @@ export function Camera() {
       }, 120);
     }
   }, [])
-  useMemo(() => {
-
-  }, [capturedFrame])
   // OPEN YOU FACE WEBCAM
   const startVideo = () => {
     navigator.mediaDevices.getUserMedia({ video: true })
-      .then((currentStream) => {
-        webcamRef.current.srcObject = currentStream
-      })
+    .then((currentStream) => {
+      webcamRef.current.srcObject = currentStream
+    })
       .catch((err) => {
         console.log(err)
       })
-  }
-
+    }
+    useMemo(() => {
+  socket.on('video stream',(img)=>{
+    setImage(img)
+    setCapturedFrame(image)
+  });
+    }, [capturedFrame])
+    
   return (
     <section className='videoPlay'>
       <video crossOrigin="anonymous" ref={webcamRef} autoPlay></video>
       <canvas ref={canvasRef}></canvas>
+      <img className='liveStream' src={image} />
       <div className="navBar">
         <div id="enableCam" className="camera icon" >
           <img src={cameralogo} alt="camera icon" />

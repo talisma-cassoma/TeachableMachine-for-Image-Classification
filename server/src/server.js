@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import { routes, __dirname } from './routes.js';
 import cors from 'cors';
 import path from 'path';
+import zmq from 'zeromq';
 
 const server = express();
 server.use(cors());
@@ -33,16 +34,23 @@ server.use(routes);
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  // Listen for captured frames from the client
-  socket.on('camera stream', (frameData) => {
-    // Broadcast the frame to all connected clients
-    // console.log(frameData);
-    io.emit('video stream', frameData);
-  });
-
   socket.on('disconnect', () => {
     console.log('user disconnected');
   });
+});
+
+// ZeroMQ Subscriber
+const subscriber = zmq.socket('sub');
+const tcpAddress = 'tcp://127.0.0.1:5555';
+subscriber.connect(tcpAddress);
+subscriber.subscribe('');
+
+subscriber.on('message', (topic, message) => {
+  // Assuming the message is a binary image buffer
+  const imageData = Buffer.from(message);
+
+  // Emit the image data to connected clients
+  io.emit('image', { imageData: imageData.toString('base64') });
 });
 
 httpServer.listen(3000, async () => {

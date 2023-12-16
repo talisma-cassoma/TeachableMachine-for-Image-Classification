@@ -1,6 +1,6 @@
 import { Camera } from "./camera.js";
 import {
-    mobilenetModel,
+    mobilenetBase,
     trainingInputs,
     trainingOutputs,
     classLabels,
@@ -20,7 +20,7 @@ function dataGatherLoop() {
             let resizedTensorFrame = tf.image.resizeBilinear(videoFrameAsTensor, [Camera.MOBILE_NET_INPUT_HEIGHT,
             Camera.MOBILE_NET_INPUT_WIDTH], true);
             let normalizedTensorFrame = resizedTensorFrame.div(255);
-            return mobilenetModel.predict(normalizedTensorFrame.expandDims()).squeeze();
+            return mobilenetBase.predict(normalizedTensorFrame.expandDims()).squeeze();
         });
 
         trainingInputs.push(imageFeatures);

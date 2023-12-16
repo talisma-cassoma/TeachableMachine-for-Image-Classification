@@ -1,0 +1,17 @@
+Sure, here is the modified `environment.yml` file with the specified dependencies removed:
+
+```yaml
+name: multi_cam_tracking
+channels:
+  - defaults
+  - conda-forge
+  - anaconda
+dependencies:
+
+  - pip:
+    - imagezmq==1.1.1
+    - opencv-python==4.2.0.34
+    - pyzmq==22.0.2
+
+
+
