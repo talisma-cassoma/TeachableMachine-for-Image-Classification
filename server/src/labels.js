@@ -17,7 +17,7 @@ const File = {
 
 const Labels = {
     async read(){
-        const result = await File.readJson("public/assets/uploads/labels.json")
+        const result = await File.readJson("public/assets/uploads/feuilleEntrainemment/labels.json")
         return result
     }, 
     async save(data){

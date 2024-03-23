@@ -3,7 +3,7 @@ import getRandomColor from "./randomColors.js";
 import gatherDataForClass from "./gatherDataForClass.js";
 import {
     classLabels,
-    mobilenetBase,
+    mobilenetModel,
     trainingInputs,
     trainingOutputs
 } from "./loadSavedLoadedModel.js";
@@ -27,7 +27,7 @@ async function convertAnsaveTensor(dataCollector, image) {
         let resizedTensorFrame = tf.image.resizeBilinear(imageAsTensor, [224,
             224], true);
         let normalizedTensorFrame = resizedTensorFrame.div(255);
-        return mobilenetBase.predict(normalizedTensorFrame.expandDims()).squeeze();
+        return mobilenetModel.predict(normalizedTensorFrame.expandDims()).squeeze();
     });
 
     trainingInputs.push(imageFeatures);
