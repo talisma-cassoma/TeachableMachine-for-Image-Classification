@@ -1,2 +1,32 @@
-node_modules
-*/node_modules
+# Ignorar a pasta do ambiente virtual
+*venv/
+*env/
+
+*build/
+*dist/
+
+# Ignorar o arquivo do banco de dados
+*.db
+
+# Ignorar arquivos Python compilados
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignorar logs, temp e arquivos desnecessários
+*.log
+*.tmp
+
+# Ignorar configurações do editor/IDE
+#.vscode/
+.idea/
+
+# Ignorar arquivos de backup
+*.bak
+*.swp
+*.swo
+*node_modules/
+
+# Exception for package.json and package-lock.json
+!.vscode/settings.json

@@ -1,4 +1,4 @@
-import {  statusElement } from "./loadSavedLoadedModel.js";
+import { statusElement } from "./loadSavedLoadedModel.js";
 import { classLabels } from "./class.js"
 
 export async function downloadModel(model) {
@@ -24,6 +24,6 @@ export async function downloadModel(model) {
         });
 
         console.log('!!MODEL DOWNLOADED!!')
-         statusElement.innerText = '!! MODEL DOWNLOADED !!'
+        statusElement.innerText = '!! MODEL DOWNLOADED !!'
     }
 }

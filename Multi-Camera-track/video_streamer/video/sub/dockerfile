@@ -1,0 +1,24 @@
+FROM python:3.9-slim
+
+# Set working directory
+WORKDIR /app
+
+# Create non-root user and assign to video group
+RUN adduser --uid 5678 --disabled-password --gecos "" appuser && \
+    adduser appuser video && \
+    mkdir -p /app && chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-opencv libgl1-mesa-glx \
+    && pip install pyzmq \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy the subscriber script
+COPY sub.py /app/sub.py
+
+# Set the default command
+CMD ["python", "sub.py"]

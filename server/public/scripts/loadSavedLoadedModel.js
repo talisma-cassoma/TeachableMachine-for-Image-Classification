@@ -3,6 +3,7 @@
  **/
 import { Camera } from "./camera.js";
 
+let mobilenet;
 let mobilenetModel;
 const classLabels = [];
 const statusElement = document.getElementById("status");
@@ -10,30 +11,53 @@ let trainingInputs = [];
 let trainingOutputs = [];
 
 async function loadMobileNetFeatureModel() {
+    // const modelURL =
+    //     'https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_small_100_224/feature_vector/5/default/1';
+    // const modelLocalStorageKey = 'mobilenetModel-v3';
+
+    // try {
+    //     mobilenetModel = await tf.loadGraphModel('localstorage://' + modelLocalStorageKey);
+    //     await mobilenetModel.save('localstorage://' + modelLocalStorageKey);
+    // } catch (error) {
+    //     console.log("Downloading MobileNet...");
+    //     mobilenetModel = await tf.loadGraphModel(modelURL, { fromTFHub: true });
+    //     console.log('MobileNet v3 loaded successfully!')
+    //     // Save the model to local storage
+    //     // await mobilenetModel.save('localstorage://' + modelLocalStorageKey);
+    // }
+
+    // statusElement.innerText = 'MobileNet v3 loaded successfully!';
+
+    // // Warm up the model by passing zeros through it once.
+    // tf.tidy(function () {
+    //     let dummyPrediction = mobilenetModel.predict(tf.zeros([1, Camera.MOBILE_NET_INPUT_HEIGHT, Camera.MOBILE_NET_INPUT_WIDTH, 3]));
+    //     console.log(dummyPrediction.shape);
+    // });
+    // console.log('MobileNet v3 is ready for use');
+
     const modelURL =
-        'https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_small_100_224/feature_vector/5/default/1';
-    const modelLocalStorageKey = 'mobilenetModel-v3';
-    
+        'https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/SavedModels/mobilenet-v2/model.json';
+
     try {
-        mobilenetModel = await tf.loadGraphModel('localstorage://' + modelLocalStorageKey);
-        await mobilenetModel.save('localstorage://' + modelLocalStorageKey);
+        mobilenet = await tf.loadLayersModel(modelURL)
+        statusElement.innerText = 'MobileNet v2 loaded successfully!';
+
     } catch (error) {
-        console.log("Downloading MobileNet...");
-        mobilenetModel = await tf.loadGraphModel(modelURL, { fromTFHub: true });
-        console.log('MobileNet v3 loaded successfully!')
-        // Save the model to local storage
-        // await mobilenetModel.save('localstorage://' + modelLocalStorageKey);
+        console.log(error);
     }
 
-    statusElement.innerText = 'MobileNet v3 loaded successfully!';
-    
-    // Warm up the model by passing zeros through it once.
-    tf.tidy(function () {
+    const layer = mobilenet.getLayer('global_average_pooling2d_1');
+    mobilenetModel = tf.model({ inputs: mobilenet.inputs, outputs: layer.output });
+    mobilenetModel.summary();
+
+
+      tf.tidy(function () {
         let dummyPrediction = mobilenetModel.predict(tf.zeros([1, Camera.MOBILE_NET_INPUT_HEIGHT, Camera.MOBILE_NET_INPUT_WIDTH, 3]));
         console.log(dummyPrediction.shape);
     });
-    console.log('MobileNet v3 is ready for use');
+    console.log('MobileNet v2 is ready for use');
 }
+
 async function getModelLabels() {
     const response = await fetch("http://localhost:3000/train/labels");
     const jsonData = await response.json();

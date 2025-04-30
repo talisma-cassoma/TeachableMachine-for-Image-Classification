@@ -1,77 +1,80 @@
 import { Camera } from "./camera.js"
-import { mobilenetModel, loadMobileNetFeatureModel } from "./loadSavedLoadedModel.js";
-import { Class, predictionBarsProgress } from "./class.js";
+import { Class, predictionBarsProgress } from "./class.js"
 
-let model = undefined
-let labels = []
+let model = undefined;
+let labels = [];
 
 const Prediction = {
 
 	async getModelLabelsNames() {
 		const response = await fetch("http://localhost:3000/train/labels");
 		const jsonData = await response.json();
-		const classNames = jsonData.labels
-		return classNames
+		return jsonData.labels;
 	},
+
 	async setPredictionsBars() {
-		labels = await Prediction.getModelLabelsNames()
-		//console.log(labels)
+		labels = await Prediction.getModelLabelsNames();
 		for (let i = 0; i < labels.length; i++) {
-			Class.createLabelPredictionsBar(labels[i])
+			Class.createLabelPredictionsBar(labels[i]);
 		}
 	},
+
 	enable() {
+		const predBtn = document.querySelector('.enablePredictionButton');
 
-		const predBtn = document.querySelector('.enablePredictionButton')
+		let isPredicting = false;
 
-		predBtn.addEventListener('click', function predictLoop() {
-			if (Camera.videoPlaying) {
+		predBtn.addEventListener('click', () => {
+			if (isPredicting) return; // evita múltiplos listeners
+			isPredicting = true;
 
-				tf.tidy(function predictLoop() {
-					let videoFrameAsTensor = tf.browser.fromPixels(Camera.VIDEO).div(255);
-					let resizedTensorFrame = tf.image.resizeBilinear(videoFrameAsTensor, [Camera.MOBILE_NET_INPUT_HEIGHT,
-					Camera.MOBILE_NET_INPUT_WIDTH], true);
+			const predictLoop = () => {
+				if (!Camera.videoPlaying) {
+					console.log("Camera is off");
+					isPredicting = false;
+					return;
+				}
 
-					let imageFeatures = mobilenetModel.predict(resizedTensorFrame.expandDims());
-					let predict = model.predict(imageFeatures).squeeze();
+				tf.tidy(() => {
+					const videoFrameAsTensor = tf.browser.fromPixels(Camera.VIDEO).div(255);
+					const resizedTensorFrame = tf.image.resizeBilinear(
+						videoFrameAsTensor,
+						[Camera.MOBILE_NET_INPUT_HEIGHT, Camera.MOBILE_NET_INPUT_WIDTH],
+						true
+					).expandDims(); // [1, 224, 224, 3]
 
-					let predictionArray = predict.arraySync();
-
+					const prediction = model.predict(resizedTensorFrame).squeeze(); // combined model
+					const predictionArray = prediction.arraySync();
 
 					for (let i = 0; i < labels.length; i++) {
-
-						let classPredictionConfidence = Math.floor(predictionArray[i] * 100)
-						predictionBarsProgress[i].style.width = `${classPredictionConfidence}%`
-						predictionBarsProgress[i].innerText = classPredictionConfidence + '%'
+						const confidence = Math.floor(predictionArray[i] * 100);
+						predictionBarsProgress[i].style.width = `${confidence}%`;
+						predictionBarsProgress[i].innerText = confidence + '%';
 					}
 				});
 
 				window.requestAnimationFrame(predictLoop);
+			};
 
-			} else {
-				console.log("camera is off")
-			}
-		})
+			window.requestAnimationFrame(predictLoop);
+		});
 	},
+
 	async loadModel() {
+		model = await tf.loadLayersModel('http://localhost:3000/assets/uploads/model.json');
+		console.log("✅ Modelo combinado carregado com sucesso:");
+		model.summary(); // Exibe arquitetura completa (deve incluir camadas MobileNet!)
 
-		model = await tf.loadLayersModel('http://localhost:3000/assets/uploads/feuilleEntrainemment/model.json');
-
-		model.summary()
-
-		await Prediction.setPredictionsBars()
-		
-		loadMobileNetFeatureModel()
-
+		await Prediction.setPredictionsBars();
 	}
-}
+};
 
 const App = {
 	async init() {
-		Camera.init()
+		Camera.init();
 		await Prediction.loadModel();
-		Prediction.enable()
+		Prediction.enable();
 	}
-}
+};
 
-App.init()
+App.init();

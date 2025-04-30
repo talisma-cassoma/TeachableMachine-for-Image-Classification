@@ -15,7 +15,7 @@ const TRAIN_BUTTON = document.getElementById("train");
 const RESET_BUTTON = document.getElementById('reset');
 const DOWNLOAD_BUTTON = document.getElementById('download');
 
-let model = undefined
+let model = tf.sequential();
 let predict = false;
 
 function predictLoop() {
@@ -72,8 +72,7 @@ async function trainAndPredict() {
 
 const Train = {
 	buildModel() {
-		model = tf.sequential();
-		model.add(tf.layers.dense({ inputShape: [1024], units: 128, activation: 'relu' }));
+		model.add(tf.layers.dense({ inputShape: [1280], units: 64, activation: 'relu' }));
 		model.add(tf.layers.dense({ units: classLabels.length, activation: 'softmax' }));
 
 		model.summary();
@@ -112,8 +111,23 @@ const Train = {
 	async downloadModel() {
 		//stop prediction lopp
 		predict = false;
+
+		let combinedModel=tf.sequential();
+        combinedModel.add(mobilenetModel);
+        combinedModel.add(model);
+
+        combinedModel.compile({
+        	optimizer: 'adam',
+        	loss: (classLabels.length === 2) ? 'binaryCrossentropy' : 'categoricalCrossentropy',
+        	metrics: ['accuracy']
+        });
+
+        combinedModel.summary();
+
+        // await combinedModel.save('http://localhost:3000//upload/combinedModel');
+
 		//start download
-		await downloadModel(model);
+		await downloadModel(combinedModel);
 
 	}
 }

@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 
 /** Require multer */
 import multer from "multer"
-let localStorageDir = ''
+let localStorageDir = 'public/assets/uploads/'
 
 const storage = multer.diskStorage({
     destination: function (request, file, cb) {

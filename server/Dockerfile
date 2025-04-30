@@ -4,6 +4,13 @@ FROM node:latest
 # Set the working directory inside the container
 WORKDIR /usr/app
 
+# Instalar dependências necessárias
+RUN apt-get update && apt-get install -y \
+    python3 python3-pip python3-dev \
+    libc6-dev \
+    libglib2.0-0 \
+    libstdc++6
+    
 # Copy package.json and package-lock.json (if exists) to the container
 COPY package*.json ./
 

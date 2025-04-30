@@ -1,0 +1,11 @@
+FROM python:3.9-slim
+WORKDIR /app
+
+# Install dependencies
+RUN apt-get update && apt-get install -y python3-opencv libgl1-mesa-glx \
+    && pip install pyzmq
+
+# Copy publisher script
+COPY pub.py /app/pub.py
+
+CMD ["python", "pub.py"]

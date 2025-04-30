@@ -1,0 +1,35 @@
+services:
+  video_streamer:
+    build:
+      context: ./video_streamer
+      dockerfile: Dockerfile
+    container_name: video_streamer
+    ports:
+      - "5555:5555" # Porta do emulador
+    volumes:
+      - ./video_streamer:/app # Persistência dos arquivos de vídeo
+    networks:
+      - app_network
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  object_counting:
+    build:
+      context: ./object_counting
+      dockerfile: Dockerfile
+    container_name: object_counting
+    depends_on:
+      - video_streamer
+    ports:
+      - "5000:5000" # Porta da API Flask (ajuste se necessário)
+    volumes:
+      - ./object_counting:/app
+    networks:
+      - app_network
+    environment:
+      - PYTHONUNBUFFERED=1
+      - STREAMER_URL=http://video_streamer:5000 # URL do emulador
+
+networks:
+  app_network:
+    driver: bridge

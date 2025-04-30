@@ -1,7 +1,0 @@
-version: '3'
-
-services: 
-  camera-streamer-app:
-    build: ./camera_streamer_server
-    ports:
-      - "5555:5555"
